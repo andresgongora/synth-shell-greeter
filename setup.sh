@@ -35,10 +35,33 @@
 ##
 setup()
 {
+	include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+	include 'bash-tools/bash-tools/user_io.sh'
+	include 'bash-tools/bash-tools/hook_script.sh'
+	include 'bash-tools/bash-tools/assemble_script.sh'
+
+
+	## SWITCH BETWEEN AUTOMATIC AND USER INSTALLATION
+	if [ "$#" -eq 0 ]; then
+		local output_script="$HOME/.config/synth-shell/synth-shell-greeter.sh"
+		local output_config_dir="$HOME/.config/synth-shell/"
+		printInfo "Installing script as $output_script"
+		local action=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
+		case "$action" in
+			""|y|Y )	hookScript $output_script ;;
+			n|N )		;;
+			*)		printError "Invalid option"; exit 1
+		esac
+		
+	else
+		local output_script="$1"
+		local output_config_dir="$2"
+	fi
+
+
+	## DEFINE LOCAL VARIABLES
 	local input_script="./synth-shell-greeter.sh"
 	local input_config_dir="./config/"
-	local output_script="$HOME/tmp/my-script.sh"
-	local output_config_dir="$HOME/tmp/config/"
 
 	local output_script_header=$(printf '%s'\
 	"##!/bin/bash\n"\
@@ -79,18 +102,16 @@ setup()
 	"##\n\n\n")
 
 
-
-	## INLCUDE INSTALLATION HELPER
-	include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
-	include 'bash-tools/bash-tools/install_script.sh'
-
 	## SETUP SCRIPT
-	installScript "$input_script" "$output_script" "$output_script_header"
+	assembleScript "$input_script" "$output_script" "$output_script_header" True
+
 
 	## SETUP CONFIGURATION FILES
 	[ -d "$output_config_dir" ] || mkdir -p "$output_config_dir"
 	cp -ur "$input_config_dir/." "$output_config_dir/"
 }
+
+
 
 
 

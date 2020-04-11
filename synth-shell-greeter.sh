@@ -1297,8 +1297,8 @@ local print_extra_new_line_bot=false
 
 
 ## LOAD USER CONFIGURATION
-local user_config_file="$HOME/.config/synth-shell/status.config"
-local sys_config_file="/etc/andresgongora/synth-shell/status.config"
+local user_config_file="$HOME/.config/synth-shell/synth-shell-greeter.config"
+local sys_config_file="/etc/synth-shell/greeter/synth-shell-greeter.config"
 if   [ -f $user_config_file ]; then
 	source $user_config_file
 elif [ -f $sys_config_file ]; then

@@ -33,58 +33,20 @@
 
 ##------------------------------------------------------------------------------
 ##
-##	INSTALL SCRIPT
-##	This function installs a generic script to the system. It copies the
-##	script to INSTALL_DIR, and also adds to it all the dependencies from
-##	common to make the script completely self contained. Also, this
-##	function copies all configuration files to CONFIG_DIR
-##
-##	ARGUMENTS
-##	1. Name of script. (e.g. "status" or "fancy-bash-prompt")
-##
-installScript()
+setup()
 {
-	## ARGUMENTS
-	local operation=$1
-	local script_name=$2	
+	local input_script="./synth-shell-greeter.sh"
+	local input_config_dir="./config/"
+	local output_script="$HOME/tmp/my-script.sh"
+	local output_config_dir="$HOME/tmp/config/"
 
-
-
-	## EXTERNAL VARIABLES
-	if [ -z $INSTALL_DIR ]; then echo "INSTALL_DIR not set"; exit 1; fi
-	if [ -z $RC_FILE ];      then echo "RC_FILE not set";      exit 1; fi
-	if [ -z $CONFIG_DIR ];  then echo "CONFIG_DIR not set";  exit 1; fi
-
-
-
-	## LOCAL VARIABLES
-	local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-	local script="${INSTALL_DIR}/${script_name}.sh"
-	local source_script="${dir}/synth-shell/${script_name}.sh"
-	local config_template_dir="${dir}/config_templates"
-	local uninstaller="${INSTALL_DIR}/uninstall.sh"
-	local edit_text_file_script="$dir/bash-tools/bash-tools/edit_text_file.sh"
-	source "$edit_text_file_script"
-
-
-
-	## TEXT FRAGMENTS
-	local hook=$(printf '%s'\
-	"\n"\
-	"##-----------------------------------------------------\n"\
-	"## ${script_name}\n"\
-	"## Added by synth-shell\n"\
-	"## https://github.com/andresgongora/synth-shell/\n"\
-	"if [ -f ${script} ]; then\n"\
-	"\tsource ${script}\n"\
-	"fi")
-
-	local script_header=$(printf '%s'\
+	local output_script_header=$(printf '%s'\
 	"##!/bin/bash\n"\
 	"\n"\
 	"##  +-----------------------------------+-----------------------------------+\n"\
 	"##  |                                                                       |\n"\
-	"##  | Copyright (c) 2014-2019, https://github.com/andresgongora/synth-shell |\n"\
+	"##  | Copyright (c) 2014-2020, Andres Gongora <mail@andresgongora.com>      |\n"\
+	"##  | https://github.com/andresgongora/synth-shell-greeter                  |\n"\
 	"##  | Visit the above URL for details of license and authorship.            |\n"\
 	"##  |                                                                       |\n"\
 	"##  | This program is free software: you can redistribute it and/or modify  |\n"\
@@ -117,319 +79,25 @@ installScript()
 	"##\n\n\n")
 
 
-	
-	## INSTALL/UNINSTALL
-	case "$operation" in
 
-	uninstall)
-		## REMOVE HOOK AND SCRIPT
-		printInfo "Removed $script_name hook from $RC_FILE"
-		editTextFile "$RC_FILE" delete "$hook"
-		if [ -f $script ]; then rm $script; fi
-		;;
+	## INLCUDE INSTALLATION HELPER
+	include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+	include 'bash-tools/bash-tools/install_script.sh'
 
+	## SETUP SCRIPT
+	installScript "$input_script" "$output_script" "$output_script_header"
 
-	install)
-
-		## CHECK THAT INSTALL DIR EXISTS
-		if [ ! -d $INSTALL_DIR ]; then
-			printInfo "Creating directory $INSTALL_DIR"
-			mkdir -p $INSTALL_DIR
-		fi
-
-
-
-		## CREATE EMPTY SCRIPT FILE	
-		printInfo "Creating file $script"
-		if [ -f $script ]; then
-			rm $script
-		fi
-		touch "$script" || exit 1
-		chmod 755 "$script"
-		echo -e "${script_header}" >> ${script}
-
-
-
-		## ADD CONTENT TO SCRIPT FILE
-		## - Add common scripts TODO: Make this configurable	
-		## - Add actual script
-		## - Remove common functions from environment
-		cat "${dir}/bash-tools/bash-tools/load_config.sh" |\
-			sed 's/^#.*$//g;s/[ \t][ \t]*#.*$//g;/^[ \t]*$/d' >> "$script"
-		cat "${dir}/bash-tools/bash-tools/color.sh" |\
-			sed 's/^#.*$//g;s/[ \t][ \t]*#.*$//g;/^[ \t]*$/d' >> "$script"
-		cat "${dir}/bash-tools/bash-tools/shorten_path.sh" |\
-			sed 's/^#.*$//g;s/[ \t][ \t]*#.*$//g;/^[ \t]*$/d' >> "$script"
-		cat "${dir}/bash-tools/bash-tools/print_utils.sh" |\
-			sed 's/^#.*$//g;s/[ \t][ \t]*#.*$//g;/^[ \t]*$/d' >> "$script"
-		cat "$source_script" |\
-			sed 's/^#.*$//g;s/[ \t][ \t]*#.*$//g;/^[ \t]*$/d' >> "$script"
-		#echo "unset loadConfigFile" >> "$script"
-		#echo "unset getFormatCode" >> "$script"
-
-
-
-		## ADD HOOK TO /etc/bash.bashrc
-		printInfo "Adding $script_name hook to $RC_FILE"
-		editTextFile "$RC_FILE" append "$hook"
-
-
-
-		## COPY CONFIGURATION FILES
-		## - Check if script has config file at all. If so:
-		##   - Create system config folder if there is none
-		##   - Check if there is already some configuration in place
-		##     - If none, copy current configuration
-		##     - If there is, but different, copy with .new extension
-		##   - If example folder exists
-		##     - Copy all examples files (overwrite old examples)
-		local sys_conf_file="${CONFIG_DIR}/${script_name}.config"
-		local conf_example_dir="${config_template_dir}/${script_name}.config.examples"
-		local conf_template="${config_template_dir}/${script_name}.config"
-
-		if [ -f $conf_template ]; then
-
-			printInfo "Adding config files to $CONFIG_DIR"			
-
-			if [ ! -d $CONFIG_DIR ]; then
-				mkdir -p $CONFIG_DIR
-			fi
-		
-			if [ ! -f "$sys_conf_file" ]; then
-				cp -u "${conf_template}" "${sys_conf_file}"
-			#elif ( ! cmp -s "$conf_template" "$sys_conf_file" ); then
-			#	cp -u "${conf_template}" "${sys_conf_file}.new"
-			#	printWarn "Old configuration file detected"
-			#	printInfo "New file written to ${sys_conf_file}.new"
-			fi
-
-			if [ -d "$conf_example_dir" ]; then
-				printInfo "Adding example config files to ${CONFIG_DIR}"	
-				cp -ur "$conf_example_dir" "${CONFIG_DIR}/"
-			fi 
-
-		fi
-
-
-
-		## ADD QUICK-UNINSTALLER
-		printInfo "Adding quick uninstaller as $uninstaller"
-		editTextFile "$uninstaller" append "$script_header"
-		cat "$edit_text_file_script" |\
-			sed 's/^#.*$//g;s/[ \t][ \t]*#.*$//g;/^[ \t]*$/d' >> "$uninstaller"
-		editTextFile "$uninstaller" append "rm -rf ${CONFIG_DIR}"
-		echo "hook=\"$hook\"" >> "$uninstaller"
-		echo "editTextFile \"$RC_FILE\" delete \"\$hook\"" >> "$uninstaller"
-		echo "unset hook" >> "$uninstaller"
-		chmod +x "$uninstaller"
-
-
-
-		printSuccess "Script $script_name succesfully installed"
-
-
-		
-		## EXTRA NOTES DEPENDING ON SCRIPT
-		local optional_packages=""
-		if [ $script_name == "status" ]; then
-			local optional_packages="lm_sensors"
-		elif [ $script_name == "fancy-bash-prompt" ]; then
-			local optional_packages="powerline-fonts"
-		fi
-
-		if [ -n "$optional_packages" ]; then
-			printInfo "Consider installing the following packages as well." 
-			printInfo "The exact name might change between distributions:"
-			printText "$optional_packages"
-		fi
-
-
-		
-		## Print final separator
-		echo ""
-
-
-
-		;;
-
-
-
-	*)
-		echo $"Usage: $0 {install|uninstall}"
-            	exit 1
-		;;
-
-	esac
+	## SETUP CONFIGURATION FILES
+	[ -d "$output_config_dir" ] || mkdir -p "$output_config_dir"
+	cp -ur "$input_config_dir/." "$output_config_dir/"
 }
 
-
-
-##------------------------------------------------------------------------------
-##
-installAll()
-{
-	for script in $SCRIPTS; do
-		local action=$(promptUser "Install ${script}? (Y/n)" "" "yYnN" "y")
-		case "$action" in
-			""|y|Y )	installScript install "${script}" 
-					;;
-			*)		echo ""
-		esac
-	done
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-uninstallAll()
-{
-	## CHECK IF QUICK-UNINSTALL FILE EXISTS
-	local uninstaller="${INSTALL_DIR}/uninstall.sh"
-	if [ -f "$uninstaller" ]; then
-		## RUN QUICK-UNINSTALLER
-		"$uninstaller"	
-	else
-		for script in $SCRIPTS; do
-			installScript uninstall "$script"
-		done
-	fi
-}
 
 
 
 ##==============================================================================
-##	MAIN
+##	SCRIPT
 ##==============================================================================
 
-##------------------------------------------------------------------------------
-##
-installerSystem()
-{
-	local option=$1
-	local INSTALL_DIR="/usr/local/bin" 
-	local CONFIG_DIR="/etc/synth-shell"
-	local RC_FILE="/etc/bash.bashrc"
-
-	local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-	source "$dir/bash-tools/bash-tools/user_io.sh"
-
-	if [ $(id -u) -ne 0 ]; then 
-		printError "Please run as root"
-		exit
-	fi
-
-	printInfo "Running systemwide"
-
-	case "$option" in
-		uninstall)	printInfo "Uninstalling synth-shell"
-				uninstallAll
-				printSuccess "synth-shell was uninstalled"
-				;;
-		""|install)	printInfo "Installing synth-shell"
-				installAll
-				printSuccess "synth-shell was installed"
-				;;
-		*)		echo "Usage: $0 {install|uninstall}" & exit 1
-	esac
-}
-
-
-
-
-##------------------------------------------------------------------------------
-##
-installerUser()
-{
-	local option=$1
-	local INSTALL_DIR="${HOME}/.config/synth-shell" 
-	local CONFIG_DIR="${HOME}/.config/synth-shell"
-	local user_shell=$(getShellName)
-
-
-	printInfo "Running for user $USER"
-
-
-	case "$user_shell" in
-		bash)		local RC_FILE="${HOME}/.bashrc" ;;
-		zsh)		local RC_FILE="${HOME}/.zshrc" ;;
-		*)		local RC_FILE="${HOME}/.bashrc"
-				printInfo "Could not determine user shell. I will install the scripts into $RC_FILE"
-	esac
-
-
-	case "$option" in
-		uninstall)	printInfo "Uninstalling synth-shell"
-				uninstallAll
-				printSuccess "synth-shell was uninstalled"
-				;;
-		""|install)	printInfo "Installing synth-shell"
-				installAll
-				printSuccess "synth-shell was installed"
-				;;
-		*)		echo "Usage: $0 {install|uninstall}" & exit 1
-	esac
-}
-
-
-
-
-
-##------------------------------------------------------------------------------
-##
-##	PROMPT USER FOR INSTALLATION OPTIONS
-##
-##	USER INSTALL ONLY:	Will all code to user's home dir
-##	                  	and add hooks to its own bashrc file.
-##	SYSTEM WIDE INSTALL:	Will add code to system and hooks to
-##	                    	/etc/bash.bashrc file.
-##
-promptUser()
-{
-	local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-	source "$dir/bash-tools/bash-tools/user_io.sh"
-	source "$dir/bash-tools/bash-tools/shell.sh"
-	printHeader "Installation wizard for synth-shell"
-
-	local action=$(promptUser "Would you like to install or uninstall synth-shell?" "[i] install / [u] uninstall. Default i" "iIuU" "i")
-	case "$action" in
-		""|i|I )	local install_option="install" ;;
-		u|U )		local install_option="uninstall" ;;
-		*)		printError "Invalid option"; exit 1
-	esac
-
-
-
-	local action=$(promptUser "Would you like to install it for your current user only (recommended),\n\tor system wide (requires elevated privileges)?" "[u] current user only / [s] system wide install. Default u" "uUsS" "u")
-	case "$action" in
-		""|u|U )	installerUser   $install_option ;;
-		s|S )		sudo bash -c "bash $0 $install_option" ;;
-		*)		printError "Invalid option"; exit 1
-	esac
-}
-
-
-
-
-##------------------------------------------------------------------------------
-##
-installer()
-{
-	local SCRIPTS="
-		status
-		fancy-bash-prompt
-		better-ls
-		alias
-		"
-
-	case "$1" in
-		install|uninstall)	installerSystem "$1";;
-		*)			promptUser;;
-	esac
-}
-
-installer $1
-
-
-
+setup $@
 

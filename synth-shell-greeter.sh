@@ -31,7 +31,7 @@
 
 
 
-status()
+greeter()
 {
 
 
@@ -1159,16 +1159,12 @@ printHogsMemory()
 ##==============================================================================
 
 ## INCLUDE EXTERNAL DEPENDENCIES
-## Only if the functions are not available
-## If not, search in `common` folder
-local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#include() { local pwd="$PWD" && cd "./$( dirname "${BASH_SOURCE[0]}" )" && source "$1" && cd "$pwd" ; }
+include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+include 'bash-tools/bash-tools/color.sh'
+include 'bash-tools/bash-tools/print_utils.sh'
 
-if [ "$(type -t getFormatCode)" != 'function' ]; then
-	source "$dir/../bash-tools/bash-tools/color.sh"
-fi
-if [ "$(type -t printWithOffset)" != 'function' ]; then
-	source "$dir/../bash-tools/bash-tools/print_utils.sh"
-fi
+
 
 
 
@@ -1329,7 +1325,7 @@ if $print_extra_new_line_top; then echo ""; fi
 
 
 
-## PRINT STATUS ELEMENTS
+## PRINT GREETER ELEMENTS
 printHeader
 printLastLogins
 printSystemctl
@@ -1347,7 +1343,7 @@ if $print_extra_new_line_bot; then echo ""; fi
 ## This whole script is wrapped with "{}" to avoid environment pollution.
 ## It's also called in a subshell with "()" to REALLY avoid pollution.
 }
-(status)
-unset status
+(greeter)
+unset greeter
 
 ### EOF ###

@@ -1158,91 +1158,36 @@ printHogsMemory()
 ##	MAIN FUNCTION
 ##==============================================================================
 
+
 ## INCLUDE EXTERNAL DEPENDENCIES
 #include() { local pwd="$PWD" && cd "./$( dirname "${BASH_SOURCE[0]}" )" && source "$1" && cd "$pwd" ; }
 include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
 include 'bash-tools/bash-tools/color.sh'
 include 'bash-tools/bash-tools/print_utils.sh'
+include 'config/synth-shell-greeter.config.default'
 
-
-
-## DEFAULT CONFIGURATION
-## WARNING! Do not edit directly, use configuration files instead
-
-logo="\e[38;5;213m                          __  __
-        _______  ______  / /_/ /_
-       / ___/ / / / __ \/ __/ __ \ 
-      /__  / /_/ / / / / /_/ / / /
-     /____/\__, /_/ /_/\__/_/ /_/
-          /____/
-\e[38;5;45m   _____ __  __________    __
-  / ___// / / / ____/ /   / /
-  \__ \/ /_/ / __/ / /   / /
- ___/ / __  / /___/ /___/ /___
-/____/_/ /_/_____/_____/_____/\e[0;39m"
-
-local print_info="
-	OS
-	KERNEL
-	CPU
-	GPU
-	SHELL
-	DATE
-	UPTIME
-	LOCALIPV4
-	EXTERNALIPV4
-	SERVICES
-	CPUTEMP
-	SYSLOAD_MON%
-	MEMORY_MON
-	SWAP_MON
-	HDDROOT_MON
-	HDDHOME_MON"
-
-local format_info="-c white"
-local format_highlight="-c blue  -e bold"
-local format_crit="-c 208   -e bold"
-local format_deco="-c white -e bold"
-local format_ok="-c blue  -e bold"
-local format_error="-c 208   -e bold -e blink"
-local format_logo="-c blue -e bold"
-
-local crit_cpu_percent=40
-local crit_ram_percent=75
-local crit_swap_percent=25
-local crit_hdd_percent=85
-local crit_home_percent=85
-
-local bar_length=13
-local bar_num_digits=5
-local info_label_width=16
-
-local print_cols_max=100
-local print_logo_right=false
-local date_format="%Y.%m.%d - %T"
-local print_cpu_hogs_num=3
-local print_cpu_hogs=true
-local print_memory_hogs=true
-local clear_before_print=false
-local print_extra_new_line_top=true
-local print_extra_new_line_bot=true
 
 
 ## LOAD USER CONFIGURATION
+local target_config_file=$1
 local user_config_file="$HOME/.config/synth-shell/synth-shell-greeter.config"
 local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
 local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
-if   [ -f $user_config_file ]; then
-	source $user_config_file
+if   [ -f "$target_config_file" ]; then
+	source "$target_config_file"
+elif [ -f "$user_config_file" ]; then
+	source "$user_config_file"
 elif [ "$USER" == "root" -a -f $root_config_file ]; then
-	source $root_config_file
-elif [ -f $sys_config_file ]; then
-	source $sys_config_file
+	source "$root_config_file"
+elif [ -f "$sys_config_file" ]; then
+	source "$sys_config_file"
+else
+	: # Default config already "included"
 fi
 
 
 
-## COLOR AND TEXT FORMAL CODE
+## COLOR AND TEXT FORMAT CODE
 local fc_info=$(getFormatCode $format_info)
 local fc_highlight=$(getFormatCode $format_highlight)
 local fc_crit=$(getFormatCode $format_crit)
@@ -1274,11 +1219,16 @@ if $print_extra_new_line_bot; then echo ""; fi
 
 
 
+}
+
+
+
 ## RUN SCRIPT
 ## This whole script is wrapped with "{}" to avoid environment pollution.
 ## It's also called in a subshell with "()" to REALLY avoid pollution.
-}
-(greeter)
+(greeter $1)
 unset greeter
+
+
 
 ### EOF ###

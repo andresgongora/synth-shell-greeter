@@ -250,6 +250,7 @@ printInfoNameLoggedIn() { printInfo "Logged in" "$(getNameLoggedInUsers)" ; }
 
 printInfoCPU() { printInfo "CPU" "$(getNameCPU)" ; }
 printInfoGPU() { printInfo "GPU" "$(getNameGPU)" ; }
+printInfoCPUUtilization() { printInfo "Sys load" "$(getCPUUtilization)" ; }
 
 printInfoLocalIPv4() { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
@@ -333,22 +334,6 @@ printInfoColorpaletteFancy()
 
 	printInfo "Color palette" "$palette_top"
 	printInfo "" "$palette_bot"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoCPUUtilization()
-{
-	local avg_load=$(uptime | sed 's/^.*load average: //g')	
-	printInfo "Sys load" "$avg_load"
 }
 
 
@@ -540,8 +525,6 @@ printMonitorCPUTemp()
 		printInfo "CPU temp" "lm-sensors not installed"
 	fi
 }
-
-
 
 
 

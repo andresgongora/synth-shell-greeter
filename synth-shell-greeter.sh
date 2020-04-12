@@ -825,8 +825,7 @@ printHogsMemory()
 
 
 ## INCLUDE EXTERNAL DEPENDENCIES
-#include() { local pwd="$PWD" && cd "./$( dirname "${BASH_SOURCE[0]}" )" && source "$1" && cd "$pwd" ; }
-include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 include 'bash-tools/bash-tools/color.sh'
 include 'bash-tools/bash-tools/print_utils.sh'
 include 'config/synth-shell-greeter.config.default'

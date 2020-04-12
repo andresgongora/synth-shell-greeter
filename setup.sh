@@ -104,7 +104,7 @@ setup()
 
 	## SETUP CONFIGURATION FILES
 	[ -d "$output_config_dir" ] || mkdir -p "$output_config_dir"
-	cp -ur "$input_config_dir/." "$output_config_dir/"
+	cp -r "$input_config_dir/." "$output_config_dir/"
 
 
 	## SETUP DEFAULT SYNTH-SHELL-GREETER CONFIG FILE

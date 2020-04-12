@@ -38,6 +38,7 @@ setup()
 	include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
 	include 'bash-tools/bash-tools/user_io.sh'
 	include 'bash-tools/bash-tools/hook_script.sh'
+	include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
 	include 'bash-tools/bash-tools/assemble_script.sh'
 
 
@@ -60,8 +61,9 @@ setup()
 
 
 	## DEFINE LOCAL VARIABLES
-	local input_script="./synth-shell-greeter.sh"
-	local input_config_dir="./config/"
+	local dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
+	local input_script="$dir/synth-shell-greeter.sh"
+	local input_config_dir="$dir/config/"
 
 	local output_script_header=$(printf '%s'\
 	"##!/bin/bash\n"\
@@ -103,7 +105,7 @@ setup()
 
 
 	## SETUP SCRIPT
-	assembleScript "$input_script" "$output_script" "$output_script_header" True
+	assembleScript "$input_script" "$output_script" "$output_script_header"
 
 
 	## SETUP CONFIGURATION FILES

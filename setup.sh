@@ -60,9 +60,12 @@ setup()
 
 
 	## DEFINE LOCAL VARIABLES
-	local input_script="./synth-shell-greeter.sh"
-	local input_config_dir="./config/"
+	local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+	local input_script="$dir/synth-shell-greeter.sh"
+	local input_config_dir="$dir/config/"
 
+
+	## HEADER TO BE ADDED AT THE TOP OF THE ASSEMBLED SCRIPT
 	local output_script_header=$(printf '%s'\
 	"##!/bin/bash\n"\
 	"\n"\

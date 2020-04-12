@@ -231,176 +231,37 @@ printMonitor()
 
 
 ##==============================================================================
-##	INFO AND MONITOR MESSAGES
+##	INFO
 ##==============================================================================
 
-printInfoOS()
-{
-	if   [ -f /etc/os-release ]; then
-		local os_name=$(sed -En 's/PRETTY_NAME="(.*)"/\1/p' /etc/os-release)
-	elif [ -f /usr/lib/os-release ]; then
-		local os_name=$(sed -En 's/PRETTY_NAME="(.*)"/\1/p' /usr/lib/os-release)
-	else
-		local os_name=$(uname -sr)
-	fi
+include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+include 'functions/info_os.sh'
+include 'functions/info_hardware.sh'
+include 'functions/info_network.sh'
 
-	printInfo "OS" "$os_name"
-}
+printInfoOS() { printInfo "OS" "$(getNameOS)" ; }
+printInfoKernel() { printInfo "Kernel" "$(getNameKernel)" ; }
+printInfoShell() { printInfo "Shell" "$(getNameShell)" ; }
+printInfoDate() { printInfo "Date" "$(getDate)" ; }
+printInfoUptime() { printInfo "Uptime" "$(getUptime)" ; }
+printInfoUser() { printInfo "User" "$(getUserHost)" ; }
+printInfoNumLoggedIn() { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
+printInfoNameLoggedIn() { printInfo "Logged in" "$(getNameLoggedInUsers)" ; }
 
+printInfoCPU() { printInfo "CPU" "$(getNameCPU)" ; }
+printInfoGPU() { printInfo "GPU" "$(getNameGPU)" ; }
 
-
-##------------------------------------------------------------------------------
-##
-printInfoKernel()
-{
-	local kernel=$(uname -r)
-	printInfo "Kernel" "$kernel"
-}
+printInfoLocalIPv4() { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
+printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
 
 
 
-##------------------------------------------------------------------------------
-##
-printInfoCPU()
-{
-	## Get first instance of "model name" in /proc/cpuinfo, pipe into 'sed'
-	## s/model name\s*:\s*//  remove "model name : " and accompanying spaces
-	## s/\s*@.*//             remove anything from "@" onwards
-	## s/(R)//                remove "(R)"
-	## s/(TM)//               remove "(TM)"
-	## s/CPU//                remove "CPU"
-	## s/\s\s\+/ /            clean up double spaces (replace by single space)
-	## p                      print final output
-	local cpu=$(grep -m 1 "model name" /proc/cpuinfo |\
-	            sed -n 's/model name\s*:\s*//;
-	                    s/\s*@.*//;
-	                    s/(R)//;
-	                    s/(TM)//;
-	                    s/CPU//;
-	                    s/\s\s\+/ /;
-	                    p')
-
-	printInfo "CPU" "$cpu"
-}
 
 
 
-##------------------------------------------------------------------------------
-##
-printInfoGPU()
-{
-	## DETECT GPU(s)set	
-	local gpu_id=$(lspci 2>/dev/null | grep ' VGA ' | cut -d" " -f 1)
-
-	## FOR ALL DETECTED IDs
-	## Get the GPU name, but trim all buzzwords away
-	echo -e "$gpu_id" | while read line ; do
-	   	local gpu=$(lspci -v -s "$line" 2>/dev/null |\
-		            head -n 1 |\
-		            sed 's/^.*: //g;s/(.*$//g;
-		                 s/Corporation//g;
-		                 s/Core Processor//g;
-		                 s/Series//g;
-		                 s/Chipset//g;
-		                 s/Graphics//g;
-		                 s/processor//g;
-		                 s/Controller//g;
-		                 s/Family//g;
-		                 s/Inc.//g;
-		                 s/,//g;
-		                 s/Technology//g;
-		                 s/Mobility/M/g;
-		                 s/Advanced Micro Devices/AMD/g;
-		                 s/\[AMD\/ATI\]/ATI/g;
-		                 s/Integrated Graphics Controller/HD Graphics/g;
-		                 s/Integrated Controller/IC/g;
-		                 s/  */ /g'
-		           )
-
-		## If GPU name still to long, remove anything between []
-		if [ "${#gpu}" -gt 30 ]; then
-			local gpu=$(echo "$gpu" | sed 's/\[.*\]//g' )
-		fi
-
-
-		printInfo "GPU" "$gpu"
-	done
-
-}
-
-
-##------------------------------------------------------------------------------
-##
-printInfoShell()
-{
-	local shell=$(readlink /proc/$$/exe)
-	printInfo "Shell" "$shell"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoDate()
-{
-	local sys_date=$(date +"$date_format")
-	printInfo "Date" "$sys_date"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoUptime()
-{
-	local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
-	                                s/s//g;
-	                                s/ year/y/g;
-	                                s/ month/m/g;
-	                                s/ week/w/g;
-	                                s/ day/d/g;
-	                                s/ hour, /:/g;
-	                                s/ minute//g')
-	printInfo "Uptime" "$uptime"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoUser()
-{
-	printInfo "User" "$USER@$HOSTNAME"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoNumLoggedIn()
-{
-	## -n	silent
-	## 	replace everything with content of the group inside \( \)
-	## p	print
-	num_users=$(uptime |\
-	            sed -n 's/.*\([[0-9:]]* users\).*/\1/p')
-
-	printInfo "Logged in" "$num_users"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoNameLoggedIn()
-{
-	## who			See who is logged in
-	## awk '{print $1;}'	First word of each line
-	## sort -u		Sort and remove duplicates
-	local name_users=$(who | awk '{print $1;}' | sort -u)
-
-	printInfo "Logged in" "$name_users"
-}
+##==============================================================================
+##	
+##==============================================================================
 
 
 
@@ -478,8 +339,7 @@ printInfoColorpaletteFancy()
 
 ##------------------------------------------------------------------------------
 ##
-printInfoSpacer()
-{
+printInfoSpacer() {
 	printInfo "" ""
 }
 
@@ -682,6 +542,10 @@ printMonitorCPUTemp()
 		printInfo "CPU temp" "lm-sensors not installed"
 	fi
 }
+
+
+
+
 
 
 

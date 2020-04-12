@@ -32,7 +32,7 @@
 
 
 
-##------------------------------------------------------------------------------
+##==============================================================================
 ##
 ##	getLocalIPv6()
 ##
@@ -94,7 +94,7 @@ getLocalIPv6()
 
 
 
-##------------------------------------------------------------------------------
+##==============================================================================
 ##
 ##	getExternalIPv6()
 ##
@@ -134,7 +134,7 @@ getExternalIPv6()
 
 
 
-##------------------------------------------------------------------------------
+##==============================================================================
 ##
 ##	getLocalIPv4()
 ##
@@ -144,7 +144,7 @@ getExternalIPv6()
 ##	!!!       have a default gateway attached to related interface,
 ##	!!!       otherwise this returns list of IPv4's if there are many
 ##
-printInfoLocalIPv4()
+getLocalIPv4()
 {
 	## GREP REGEX EXPRESSION TO RETRIEVE IP STRINGS
 	##
@@ -186,7 +186,7 @@ printInfoLocalIPv4()
 	## FIX IP FORMAT AND RETURN
 	## Add extra space after commas for readibility
 	local ip=$(echo "$ip" | sed 's/,/, /g')
-	printInfo "Local IPv4" "$ip"
+	printf "$ip"
 }
 
 
@@ -194,7 +194,7 @@ printInfoLocalIPv4()
 
 
 
-##------------------------------------------------------------------------------
+##==============================================================================
 ##
 ##	getExternalIPv4()
 ##
@@ -204,7 +204,7 @@ printInfoLocalIPv4()
 ##	DNS-based queries are always faster, ~0.1 seconds.
 ##	URL-queries are relatively slow, ~1 seconds.
 ##
-printInfoExternalIPv4()
+getExternalIPv4()
 {
 	if   ( which dig > /dev/null 2>&1 ); then
 		local ip=$(dig +time=3 +tries=1 TXT -4 +short \
@@ -232,7 +232,7 @@ printInfoExternalIPv4()
 	fi
 
 
-	printInfo "External IPv4" "$ip"
+	printf "$ip"
 }
 
 

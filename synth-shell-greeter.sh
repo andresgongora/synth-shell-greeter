@@ -809,16 +809,11 @@ local target_config_file=$1
 local user_config_file="$HOME/.config/synth-shell/synth-shell-greeter.config"
 local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
 local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
-if   [ -f "$target_config_file" ]; then
-	source "$target_config_file"
-elif [ -f "$user_config_file" ]; then
-	source "$user_config_file"
-elif [ "$USER" == "root" -a -f $root_config_file ]; then
-	source "$root_config_file"
-elif [ -f "$sys_config_file" ]; then
-	source "$sys_config_file"
-else
-	: # Default config already "included"
+if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
+elif [ -f "$user_config_file" ]; then   source "$user_config_file" ;
+elif [ "$USER" == "root" -a -f $root_config_file ]; then source "$root_config_file" ;
+elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
+else : # Default config already "included" ; 
 fi
 
 

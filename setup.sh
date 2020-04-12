@@ -115,7 +115,7 @@ setup()
 	local config_file="$output_config_dir/synth-shell-greeter.config"
 	if [ ! -f  "$config_file" ]; then
 		local distro=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g')		
-		case "{$distro[1]}" in
+		case "{$distro[0]}" in
 			'arch' )		cp "$output_config_dir/os/synth-shell-greeter.archlinux.config" "$config_file" ;;
 			'manjaro' )		cp "$output_config_dir/os/synth-shell-greeter.manjaro.config" "$config_file" ;;
 			*)			cp "$output_config_dir/synth-shell-greeter.config.default" "$config_file" ;;

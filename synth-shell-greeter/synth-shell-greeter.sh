@@ -34,9 +34,9 @@ greeter()
 {
 ## INCLUDE EXTERNAL DEPENDENCIES
 include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
-include 'bash-tools/bash-tools/color.sh'
-include 'bash-tools/bash-tools/print_utils.sh'
-include 'config/synth-shell-greeter.config.default'
+include '../bash-tools/bash-tools/color.sh'
+include '../bash-tools/bash-tools/print_utils.sh'
+include '../config/synth-shell-greeter.config.default'
 include 'info_os.sh'
 include 'info_hardware.sh'
 include 'info_network.sh'

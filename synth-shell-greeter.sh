@@ -406,10 +406,10 @@ printMonitorRAM()
 {
 	## CHOOSE UNITS
 	case "$memory_units" in
-		"MB")		local units="MB"; local option="--mebi" ;;
-		"TB")		local units="TB"; local option="--tebi" ;;
-		"PB")		local units="PB"; local option="--pebi" ;;
-		*)		local units="GB"; local option="--gibi" ;;
+		"MB")		local units="MB"; local option="--mega" ;;
+		"TB")		local units="TB"; local option="--tera" ;;
+		"PB")		local units="PB"; local option="--peta" ;;
+		*)		local units="GB"; local option="--giga" ;;
 	esac
 
 

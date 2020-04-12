@@ -109,6 +109,18 @@ setup()
 	## SETUP CONFIGURATION FILES
 	[ -d "$output_config_dir" ] || mkdir -p "$output_config_dir"
 	cp -ur "$input_config_dir/." "$output_config_dir/"
+
+
+	## SETUP DEFAULT SYNTH-SHELL-GREETER CONFIG FILE
+	local config_file="$output_config_dir/synth-shell-greeter.config"
+	if [ ! -f  "$config_file" ]; then
+		local distro=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g')		
+		case "$distro" in
+			'arch' )		cp "$output_config_dir/os/synth-shell-greeter.archlinux.config" "$config_file" ;;
+			'manjaro' )		cp "$output_config_dir/os/synth-shell-greeter.manjaro.config" "$config_file" ;;
+			*)			;;
+		esac
+	fi
 }
 
 

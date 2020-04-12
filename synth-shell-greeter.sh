@@ -1166,88 +1166,24 @@ include 'bash-tools/bash-tools/print_utils.sh'
 
 
 
-
-
 ## DEFAULT CONFIGURATION
 ## WARNING! Do not edit directly, use configuration files instead
 
-
-## LOGO
-if [ -z ${logo+x} ]; then
-local distro=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g')
-if [ $USER == "root" ]; then
-local logo="\e[1;31m          / \\\\ 
-         // \\\\\\\\ 
-        //   \\\\\\\\ 
-       //     \\\\\\\\ 
-      //  \e[5;39m███\e[25;31m  \\\\\\\\ 
-     //   \e[5;39m███\e[25;31m   \\\\\\\\ 
-    //    \e[5;39m███\e[25;31m    \\\\\\\\ 
-   //             \\\\\\\\ 
-  //      \e[5;39m███\e[25;31m      \\\\\\\\ 
- //                 \\\\\\\\ 
-//===================\\\\\\\\
-
-        WARNING!
-     ROOT ACCOUNT!"
-	 
-
-elif [ "$distro" == "manjaro" ]; then
-local logo="██████████████  ██████
-██████████████  ██████
-██████████████  ██████
-██████          ██████
-██████  ██████  ██████
-██████  ██████  ██████
-██████  ██████  ██████
-██████  ██████  ██████
-██████  ██████  ██████
-██████  ██████  ██████
-██████  ██████  ██████"
-
-
-elif [ "$distro" == "arch" ]; then
-local logo="                .         
-\e[0;94m                #
-\e[0;94m               ###
-\e[0;94m              #####
-\e[0;94m              ######
-\e[0;94m             ; #####;
-\e[0;94m            +##.#####
-\e[0;94m           +##########
-\e[0;94m          ######\e[0;34m#####\e[0;94m##;
-\e[0;94m         ###\e[0;34m############\e[0;94m+
-\e[0;94m        #\e[0;34m######   #######
-\e[0;34m      .######;     ;###;\`\".
-\e[0;34m     .#######;     ;#####.
-\e[0;34m     #########.   .########\`
-\e[0;34m    ######\'           \'######
-\e[0;34m   ;####                 ####;
-\e[0;34m   ##\'                     \'##
-\e[0;34m  #\'                         \`# 
-\e[0;34m '                            \`  "
-
-
-else
-local logo="
-	-oydNMMMMNdyo-
-     -yNMMMMMMMMMMMMMMNy-
-   .hMMMMMMmhsooshmMMMMMMh.
-  :NMMMMmo.        .omMMMMN:
- -NMMMMs    -+ss+-    sMMMMN-
- hMMMMs   -mMMMMMMm-   sMMMMh
-'MMMMM.  'NMMMMMMMMN'  .MMMMM
-'MMMMM.  'NMMMMMMMMN'   yMMMM'
- hMMMMs   -mMMMMMMMMy.   -yMh
- -NMMMMs    -+ss+yMMMMy.   -.
-  :NMMMMmo.       .yMMMMy.
-   .hMMMMMMmhsoo-   .yMMMy
-     -yNMMMMMMMMMy-   .o-
-	-oydNMMMMNd/
-"
-fi
-fi
-
+logo="\e[38;5;213m
+        _____             __  __   
+       / ___/__  ______  / /_/ /_  
+       \__ \/ / / / __ \/ __/ __ \ 
+      ___/ / /_/ / / / / /_/ / / / 
+     /____/\__, /_/ /_/\__/_/ /_/  
+          /____/                            
+\e[38;5;45m
+███████╗██╗  ██╗███████╗██╗     ██╗     
+██╔════╝██║  ██║██╔════╝██║     ██║     
+███████╗███████║█████╗  ██║     ██║     
+╚════██║██╔══██║██╔══╝  ██║     ██║     
+███████║██║  ██║███████╗███████╗███████╗
+╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
+\e[0;39m"
 
 local print_info="
 	OS

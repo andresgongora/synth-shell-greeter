@@ -103,8 +103,8 @@ getUptime() {
 			                        s/ hour, /:/g;
 			                        s/ minute//g')
 	else
-		local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
-		                                s/,.*$//g')
+		local uptime=$(uptime | sed 's/^[^,]*up *//g;
+		                             s/,.*$//g')
 	fi
 
 	printf "$uptime"

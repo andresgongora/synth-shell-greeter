@@ -3,7 +3,6 @@
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
 ##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
-##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -33,114 +32,6 @@
 
 greeter()
 {
-
-
-##==============================================================================
-##	AUXILIARY FUNCTIONS
-##==============================================================================
-
-##------------------------------------------------------------------------------
-##
-##	getLocalIPv6()
-##
-##	Looks up and returns local IPv6-address.
-##	Test for the presence of several programs in case one is missing.
-##	Program search ordering is based on timed tests, fastest to slowest.
-##
-##	!!! NOTE: Still need to figure out how to look for IP address that
-##	!!!       have a default gateway attached to related interface,
-##	!!!       otherwise this returns a list of IPv6's if there are many.
-##
-getLocalIPv6()
-{
-
-
-
-	## GREP REGGEX EXPRESSION TO RETRIEVE IP STRINGS
-	##
-	## The following string is intuitive and easy to read, but only parses
-	## strings that look like IPs without checking their value. For instance,
-	## it does NOT check value ranges of IPv6
-	##
-	## grep explanation:
-	## -oP				only return matching parts of a line, and use perl regex
-	## \s*inet6\s+			any-spaces "inet6" at-least-1-space
-	## (addr:?\s*)?			optionally, followed by addr or addr:
-	## \K				everything until here, omit
-	## (){1,8}			repeat block at least 1 time, up to 8
-	## ([0-9abcdef]){0,4}:*		up to 4 chars from [] followed by :
-	##
-	#local grep_reggex='\s*inet6\s+(addr:?\s*)?\K(([0-9abcdef]){0,4}:*){1,8}'
-	##
-	## The following string, on the other hand, is harder to read and
-	## understand, but is MUCH safer, as it ensures that the IP
-	## fulfills some criteria.
-	local grep_reggex='^\s*inet6\s+(addr:?\s*)?\K((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?'
-
-
-	if   ( which ip > /dev/null 2>&1 ); then
-		local result=$($(which ip) -family inet6 addr show |\
-		grep -oP "$grep_reggex" |\
-		sed '/::1/d;:a;N;$!ba;s/\n/,/g')
-
-	elif ( which ifconfig > /dev/null 2>&1 ); then
-		local result=$($(which ifconfig) |\
-		grep -oP "$grep_reggex" |\
-		sed '/::1/d;:a;N;$!ba;s/\n/,/g')
-
-	else
-		local result="Error"
-	fi
-
-
-	## Returns "N/A" if actual query result is empty,
-	## and returns "Error" if no programs found
-	[ $result ] && printf $result || printf "N/A"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-##	getExternalIPv6()
-##
-##	Makes an query to internet-server and returns public IPv6-address.
-##	Tests for the presence of several programs in case one is missing.
-##	Program search ordering is based on timed tests, fastest to slowest.
-##	DNS-based queries are always faster, ~0.1 seconds.
-##	URL-queries are relatively slow, ~1 seconds.
-##
-getExternalIPv6()
-{
-	if   ( which dig > /dev/null 2>&1 ); then
-		local result=$($(which dig) TXT -6 +short o-o.myaddr.l.google.com @ns1.google.com |\
-		               awk -F\" '{print $2}')
-
-	elif ( which nslookup > /dev/nul 2>&1 ); then
-		local result=$($(which nslookup) -q=txt o-o.myaddr.l.google.com 2001:4860:4802:32::a |\
-		               awk -F \" 'BEGIN{RS="\r\n"}{print $2}END{RS="\r\n"}')
-
-	elif ( which curl > /dev/null 2>&1 ); then
-		local result=$($(which curl) -s https://api6.ipify.org)
-
-	elif ( which wget > /dev/null 2>&1 ); then
-		local result=$($(which wget) -q -O - https://api6.ipify.org)
-
-	else
-		local result="Error"
-	fi
-
-
-	## Returns "N/A" if actual query result is empty,
-	## and returns "Error" if no programs found
-	[ $result ] && printf $result || printf "N/A"
-}
-
-
-
-
-
-
 ##==============================================================================
 ##	INFO AND MONITOR PRINTING HELPERS
 ##==============================================================================
@@ -340,276 +231,38 @@ printMonitor()
 
 
 ##==============================================================================
-##	INFO AND MONITOR MESSAGES
+##	INFO
 ##==============================================================================
 
-printInfoOS()
-{
-	if   [ -f /etc/os-release ]; then
-		local os_name=$(sed -En 's/PRETTY_NAME="(.*)"/\1/p' /etc/os-release)
-	elif [ -f /usr/lib/os-release ]; then
-		local os_name=$(sed -En 's/PRETTY_NAME="(.*)"/\1/p' /usr/lib/os-release)
-	else
-		local os_name=$(uname -sr)
-	fi
+include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+include 'functions/info_os.sh'
+include 'functions/info_hardware.sh'
+include 'functions/info_network.sh'
 
-	printInfo "OS" "$os_name"
-}
+printInfoOS() { printInfo "OS" "$(getNameOS)" ; }
+printInfoKernel() { printInfo "Kernel" "$(getNameKernel)" ; }
+printInfoShell() { printInfo "Shell" "$(getNameShell)" ; }
+printInfoDate() { printInfo "Date" "$(getDate)" ; }
+printInfoUptime() { printInfo "Uptime" "$(getUptime)" ; }
+printInfoUser() { printInfo "User" "$(getUserHost)" ; }
+printInfoNumLoggedIn() { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
+printInfoNameLoggedIn() { printInfo "Logged in" "$(getNameLoggedInUsers)" ; }
 
+printInfoCPU() { printInfo "CPU" "$(getNameCPU)" ; }
+printInfoGPU() { printInfo "GPU" "$(getNameGPU)" ; }
+printInfoCPUUtilization() { printInfo "Sys load" "$(getCPUUtilization)" ; }
 
+printInfoLocalIPv4() { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
+printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
 
-##------------------------------------------------------------------------------
-##
-printInfoKernel()
-{
-	local kernel=$(uname -r)
-	printInfo "Kernel" "$kernel"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoCPU()
-{
-	## Get first instance of "model name" in /proc/cpuinfo, pipe into 'sed'
-	## s/model name\s*:\s*//  remove "model name : " and accompanying spaces
-	## s/\s*@.*//             remove anything from "@" onwards
-	## s/(R)//                remove "(R)"
-	## s/(TM)//               remove "(TM)"
-	## s/CPU//                remove "CPU"
-	## s/\s\s\+/ /            clean up double spaces (replace by single space)
-	## p                      print final output
-	local cpu=$(grep -m 1 "model name" /proc/cpuinfo |\
-	            sed -n 's/model name\s*:\s*//;
-	                    s/\s*@.*//;
-	                    s/(R)//;
-	                    s/(TM)//;
-	                    s/CPU//;
-	                    s/\s\s\+/ /;
-	                    p')
-
-	printInfo "CPU" "$cpu"
-}
+printInfoSpacer() { printInfo "" "" ; }
 
 
 
-##------------------------------------------------------------------------------
-##
-printInfoGPU()
-{
-	## DETECT GPU(s)set	
-	local gpu_id=$(lspci 2>/dev/null | grep ' VGA ' | cut -d" " -f 1)
 
-	## FOR ALL DETECTED IDs
-	## Get the GPU name, but trim all buzzwords away
-	echo -e "$gpu_id" | while read line ; do
-	   	local gpu=$(lspci -v -s "$line" 2>/dev/null |\
-		            head -n 1 |\
-		            sed 's/^.*: //g;s/(.*$//g;
-		                 s/Corporation//g;
-		                 s/Core Processor//g;
-		                 s/Series//g;
-		                 s/Chipset//g;
-		                 s/Graphics//g;
-		                 s/processor//g;
-		                 s/Controller//g;
-		                 s/Family//g;
-		                 s/Inc.//g;
-		                 s/,//g;
-		                 s/Technology//g;
-		                 s/Mobility/M/g;
-		                 s/Advanced Micro Devices/AMD/g;
-		                 s/\[AMD\/ATI\]/ATI/g;
-		                 s/Integrated Graphics Controller/HD Graphics/g;
-		                 s/Integrated Controller/IC/g;
-		                 s/  */ /g'
-		           )
-
-		## If GPU name still to long, remove anything between []
-		if [ "${#gpu}" -gt 30 ]; then
-			local gpu=$(echo "$gpu" | sed 's/\[.*\]//g' )
-		fi
-
-
-		printInfo "GPU" "$gpu"
-	done
-
-}
-
-
-##------------------------------------------------------------------------------
-##
-printInfoShell()
-{
-	local shell=$(readlink /proc/$$/exe)
-	printInfo "Shell" "$shell"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoDate()
-{
-	local sys_date=$(date +"$date_format")
-	printInfo "Date" "$sys_date"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoUptime()
-{
-	local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
-	                                s/s//g;
-	                                s/ year/y/g;
-	                                s/ month/m/g;
-	                                s/ week/w/g;
-	                                s/ day/d/g;
-	                                s/ hour, /:/g;
-	                                s/ minute//g')
-	printInfo "Uptime" "$uptime"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoUser()
-{
-	printInfo "User" "$USER@$HOSTNAME"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoNumLoggedIn()
-{
-	## -n	silent
-	## 	replace everything with content of the group inside \( \)
-	## p	print
-	num_users=$(uptime |\
-	            sed -n 's/.*\([[0-9:]]* users\).*/\1/p')
-
-	printInfo "Logged in" "$num_users"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoNameLoggedIn()
-{
-	## who			See who is logged in
-	## awk '{print $1;}'	First word of each line
-	## sort -u		Sort and remove duplicates
-	local name_users=$(who | awk '{print $1;}' | sort -u)
-
-	printInfo "Logged in" "$name_users"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-##	getLocalIPv4()
-##
-##	Looks up and returns local IPv4-address.
-##	Tries first program found.
-##	!!! NOTE: Still needs to figure out how to look for IP address that
-##	!!!       have a default gateway attached to related interface,
-##	!!!       otherwise this returns list of IPv4's if there are many
-##
-printInfoLocalIPv4()
-{
-	## GREP REGEX EXPRESSION TO RETRIEVE IP STRINGS
-	##
-	## The following string is intuitive and easy to read, but only parses
-	## strings that look like IPs, without checking their value. For instance,
-	## it does NOT check whether the IP bytes are [0-255], rather it
-	## accepts values from [0-999] as valid.
-	##
-	## grep explanation:
-	## -oP				only return matching parts of a line, and use perl regex
-	## \s*inet\s+			any-spaces "inet6" at-least-1-space
-	## (addr:?\s*)?			optionally, followed by addr or addr:
-	## \K				everything until here, omit
-	## (){4}			repeat block at least 1 time, up to 8
-	## ([0-9]){1,4}:*		1 to 3 integers [0-9] followed by "."
-	##
-	#local grep_reggex='^\s*inet\s+(addr:?\s*)?\K(([0-9]){1,3}\.*){4}'
-	##
-	## The following string, on the other hand, is harder to read and
-	## understand, but is MUCH safer, as it ensure that the IP
-	## fulfills some criteria.
-	local grep_reggex='^\s*inet\s+(addr:?\s*)?\K(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
-
-
-	if   ( which ip > /dev/null 2>&1 ); then
-		local ip=$('ip' -family inet addr show |\
-		           grep -oP "$grep_reggex" |\
-		           sed '/127.0.0.1/d;:a;N;$!ba;s/\n/, /g')
-
-	elif ( which ifconfig > /dev/null 2>&1 ); then
-		local ip=$('ifconfig' |\
-		           grep -oP "$grep_reggex"|\
-		           sed '/127.0.0.1/d;:a;N;$!ba;s/\n/, /g')
-	else
-		local ip="N/A"
-	fi
-
-
-	## FIX IP FORMAT AND RETURN
-	## Add extra space after commas for readibility
-	local ip=$(echo "$ip" | sed 's/,/, /g')
-	printInfo "Local IPv4" "$ip"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-##	getExternalIPv4()
-##
-##	Makes a query to internet-server and returns public IPv4-address.
-##	Test for the presence of several programs in case one is missing.
-##	Program search ordering is based on timed tests, fastest to slowest.
-##	DNS-based queries are always faster, ~0.1 seconds.
-##	URL-queries are relatively slow, ~1 seconds.
-##
-printInfoExternalIPv4()
-{
-	if   ( which dig > /dev/null 2>&1 ); then
-		local ip=$(dig +time=3 +tries=1 TXT -4 +short \
-		           o-o.myaddr.l.google.com @ns1.google.com |\
-		           awk -F\" '{print $2}')
-
-	elif ( which drill > /dev/null 2>&1 ); then
-		local ip=$(drill +time=3 +tries=1 TXT -4 +short \
-		           o-o.myaddr.l.google.com @ns1.google.com |\
-		           grep IN | tail -n 1 | cut -f5 -s |\
-		           awk -F\" '{print $2}')
-
-	elif ( which nslookup > /dev/null 2>&1 ); then
-		local ip=$(nslookup -timeout=3 -q=txt \
-		           o-o.myaddr.l.google.com 216.239.32.10 |\
-		           awk -F \" 'BEGIN{RS="\r\n"}{print $2}END{RS="\r\n"}')
-
-	elif ( which curl > /dev/null 2>&1 ); then
-		local ip=$(curl -s https://api.ipify.org)
-
-	elif ( which wget > /dev/null 2>&1 ); then
-		local ip=$(wget -q -O - https://api.ipify.org)
-	else
-		local result="N/A"
-	fi
-
-
-	printInfo "External IPv4" "$ip"
-}
+##==============================================================================
+##	
+##==============================================================================
 
 
 
@@ -687,25 +340,6 @@ printInfoColorpaletteFancy()
 
 ##------------------------------------------------------------------------------
 ##
-printInfoSpacer()
-{
-	printInfo "" ""
-}
-
-
-
-##------------------------------------------------------------------------------
-##
-printInfoCPUUtilization()
-{
-	local avg_load=$(uptime | sed 's/^.*load average: //g')	
-	printInfo "Sys load" "$avg_load"
-}
-
-
-
-##------------------------------------------------------------------------------
-##
 printInfoCPUTemp()
 {
 	if ( which sensors > /dev/null 2>&1 ); then
@@ -770,9 +404,17 @@ printMonitorCPU()
 ##
 printMonitorRAM()
 {
+	## CHOOSE UNITS
+	case "$memory_units" in
+		"MB")		local units="MB"; local option="--mega" ;;
+		"TB")		local units="TB"; local option="--tera" ;;
+		"PB")		local units="PB"; local option="--peta" ;;
+		*)		local units="GB"; local option="--giga" ;;
+	esac
+
+
 	local message="Memory"
-	local units="MB"
-	local mem_info=$('free' -m | head -n 2 | tail -n 1)
+	local mem_info=$('free' "$option" | head -n 2 | tail -n 1)
 	local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
 	local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
 
@@ -791,8 +433,16 @@ printMonitorRAM()
 ##
 printMonitorSwap()
 {
+	## CHOOSE UNITS
+	case "$swap_units" in
+		"MB")		local units="MB"; local option="--mebi" ;;
+		"TB")		local units="TB"; local option="--tebi" ;;
+		"PB")		local units="PB"; local option="--pebi" ;;
+		*)		local units="GB"; local option="--gibi" ;;
+	esac
+
+
 	local message="Swap"
-	local units="MB"
 	local as_percentage=$1
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
@@ -809,7 +459,7 @@ printMonitorSwap()
 		printf "${fc_info}%-${pad}s${fc_highlight}N/A${fc_none}" "${message}"
 	
 	else ## HAS SWAP	
-		local swap_info=$('free' -m | tail -n 1)
+		local swap_info=$('free' "$option" | tail -n 1)
 		local current=$(echo "$swap_info" |\
 		                awk '{SWAP=($3)} END {printf SWAP}')
 		local max=$(echo "$swap_info" |\
@@ -830,10 +480,19 @@ printMonitorHDD()
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
 
+	## CHOOSE UNITS
+	case "$hdd_units" in
+		"MB")		local units="MB"; local option="M" ;;
+		"TB")		local units="TB"; local option="T" ;;
+		"PB")		local units="PB"; local option="P" ;;
+		*)		local units="GB"; local option="G" ;;
+	esac
+
+
 	local message="Storage /"
 	local units="GB"
-	local current=$(df -B1G / | grep "/" |awk '{key=($3)} END {printf key}')
-	local max=$(df -B1G / | grep "/" | awk '{key=($2)} END {printf key}')
+	local current=$(df "-B1${option}" / | grep "/" |awk '{key=($3)} END {printf key}')
+	local max=$(df "-B1${option}" / | grep "/" | awk '{key=($2)} END {printf key}')
 
 
 	printMonitor $current $max $crit_hdd_percent \
@@ -843,17 +502,25 @@ printMonitorHDD()
 
 
 ##------------------------------------------------------------------------------
-##
+## 
 printMonitorHome()
 {
 	local as_percentage=$1
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
+	
+	## CHOOSE UNITS
+	case "$home_units" in
+		"MB")		local units="MB"; local option="M" ;;
+		"TB")		local units="TB"; local option="T" ;;
+		"PB")		local units="PB"; local option="P" ;;
+		*)		local units="GB"; local option="G" ;;
+	esac
+
 
 	local message="Storage /home"
-	local units="GB"
-	local current=$(df -B1G ~ | grep "/" |awk '{key=($3)} END {printf key}')
-	local max=$(df -B1G ~ | grep "/" | awk '{key=($2)} END {printf key}')
+	local current=$(df "-B1${option}" ~ | grep "/" |awk '{key=($3)} END {printf key}')
+	local max=$(df "-B1${option}" ~ | grep "/" | awk '{key=($2)} END {printf key}')
 
 
 	printMonitor $current $max $crit_home_percent \
@@ -891,6 +558,8 @@ printMonitorCPUTemp()
 		printInfo "CPU temp" "lm-sensors not installed"
 	fi
 }
+
+
 
 
 
@@ -986,20 +655,18 @@ printHeader()
 
 	## PRINT ONLY WHAT FITS IN THE TERMINAL
 	if [ $(( $logo_cols + $info_cols )) -le $term_cols ]; then
-		if $print_logo_right ; then
-			printTwoElementsSideBySide "$info" "$logo" "$print_cols_max"
-		else
-			printTwoElementsSideBySide "$logo" "$info" "$print_cols_max"
-		fi
-
-	elif [ $info_cols -le $term_cols ]; then
-		if $print_logo_right ; then
-			printTwoElementsSideBySide "$info" "" "$print_cols_max"
-		else
-			printTwoElementsSideBySide "" "$info" "$print_cols_max"
-		fi
+		: # everything fits
+	else
+		local logo=""
 	fi
-
+	if $print_logo_right ; then
+		local right="$logo"
+		local left="$info"
+	else
+		local right="$info"
+		local left="$logo"
+	fi
+	printTwoElementsSideBySide "$left" "$right" "$print_cols_max"
 }
 
 
@@ -1046,49 +713,48 @@ printHogsCPU()
 	export LC_NUMERIC="C"
 
 	## CHECK GLOBAL PARAMETERS
-	if [ -z $crit_cpu_percent   ]; then exit 1; fi
-	if [ -z $print_cpu_hogs_num ]; then exit 1; fi
-	if [ -z $print_cpu_hogs     ]; then exit 1; fi
+	if [ -z $crit_cpu_percent   ]; then return ; fi
+	if [ -z $print_cpu_hogs_num ]; then local print_cpu_hogs_num=3 ; fi
+	if [ -z $print_cpu_hogs     ]; then return ; fi
 
 
 	## EXIT IF NOT ENABLED
-	if ! $print_cpu_hogs; then return; fi
+	if [ "$print_cpu_hogs"==true] ; then
+		## CHECK CPU LOAD
+		local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
+		local max=$(nproc --all)
+		local percent=$(bc <<< "$current*100/$max")
 
 
-	## CHECK CPU LOAD
-	local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
-	local max=$(nproc --all)
-	local percent=$(bc <<< "$current*100/$max")
-
-
-	if [ $percent -gt $crit_cpu_percent ]; then
-		## CALL TOP IN BATCH MODE
-		## Check if "%Cpus(s)" is shown, otherwise, call "top -1"
-		## Escape all '%' characters
-		local top=$(nice 'top' -b -d 0.01 -n 1 )
-		local cpus=$(echo "$top" | grep "Cpu(s)" )
-		if [ -z "$cpus" ]; then
-			local top=$(nice 'top' -b -d 0.01 -1 -n 1 )
+		if [ $percent -gt $crit_cpu_percent ]; then
+			## CALL TOP IN BATCH MODE
+			## Check if "%Cpus(s)" is shown, otherwise, call "top -1"
+			## Escape all '%' characters
+			local top=$(nice 'top' -b -d 0.01 -n 1 )
 			local cpus=$(echo "$top" | grep "Cpu(s)" )
+			if [ -z "$cpus" ]; then
+				local top=$(nice 'top' -b -d 0.01 -1 -n 1 )
+				local cpus=$(echo "$top" | grep "Cpu(s)" )
+			fi
+			local top=$(echo "$top" | sed 's/\%/\%\%/g' )
+
+
+			## EXTRACT ELEMENTS FROM TOP
+			## - load:    summary of cpu time spent for user/system/nice...
+			## - header:  the line just above the processes
+			## - procs:   the N most demanding procs in terms of CPU time
+			local load=$(echo "${cpus:9:36}" | tr '', ' ' )
+			local header=$(echo "$top" | grep "%CPU" )
+			local procs=$(echo "$top" |\
+				      sed  '/top - /,/%CPU/d' |\
+				      head -n "$print_cpu_hogs_num" )
+
+
+			## PRINT WITH FORMAT
+			printf "\n${fc_crit}SYSTEM LOAD:${fc_info}  ${load}\n"
+			printf "${fc_crit}$header${fc_none}\n"
+			printf "${fc_info}${procs}${fc_none}\n"
 		fi
-		local top=$(echo "$top" | sed 's/\%/\%\%/g' )
-
-
-		## EXTRACT ELEMENTS FROM TOP
-		## - load:    summary of cpu time spent for user/system/nice...
-		## - header:  the line just above the processes
-		## - procs:   the N most demanding procs in terms of CPU time
-		local load=$(echo "${cpus:9:36}" | tr '', ' ' )
-		local header=$(echo "$top" | grep "%CPU" )
-		local procs=$(echo "$top" |\
-		              sed  '/top - /,/%CPU/d' |\
-		              head -n "$print_cpu_hogs_num" )
-
-
-		## PRINT WITH FORMAT
-		printf "\n${fc_crit}SYSTEM LOAD:${fc_info}  ${load}\n"
-		printf "${fc_crit}$header${fc_none}\n"
-		printf "${fc_info}${procs}${fc_none}\n"
 	fi
 }
 
@@ -1099,53 +765,52 @@ printHogsCPU()
 printHogsMemory()
 {
 	## CHECK GLOBAL PARAMETERS
-	if [ -z $crit_ram_percent  ]; then exit 1; fi
-	if [ -z $crit_swap_percent ]; then exit 1; fi
-	if [ -z $print_memory_hogs ]; then exit 1; fi
+	if [ -z $crit_ram_percent  ]; then return; fi
+	if [ -z $crit_swap_percent ]; then return; fi
+	if [ -z $print_memory_hogs ]; then local print_memory_hogs=3 ; fi
 
 
 	## EXIT IF NOT ENABLED
-	if ! $print_memory_hogs; then return; fi
-
-
-	## CHECK RAM
-	local ram_is_crit=false
-	local mem_info=$('free' -m | head -n 2 | tail -n 1)
-	local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
-	local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
-	local percent=$(bc <<< "$current*100/$max")
-	if [ $percent -gt $crit_ram_percent ]; then
-		local ram_is_crit=true
-	fi
-
-
-	## CHECK SWAP
-	## First check if there is any swap at all by checking /proc/swaps
-	## If tehre is at least one swap partition listed, proceed
-	local swap_is_crit=false
-	local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
-	if [ "$num_swap_devs" -ge 1 ]; then
-		local swap_info=$('free' -m | tail -n 1)
-		local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
-		local max=$(echo "$swap_info" | awk '{SWAP=($2)} END {printf SWAP}')
+	if [ "$print_memory_hogs"==true ]; then
+		## CHECK RAM
+		local ram_is_crit=false
+		local mem_info=$('free' -m | head -n 2 | tail -n 1)
+		local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
+		local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
 		local percent=$(bc <<< "$current*100/$max")
-		if [ $percent -gt $crit_swap_percent ]; then
-			local swap_is_crit=true
+		if [ $percent -gt $crit_ram_percent ]; then
+			local ram_is_crit=true
 		fi
-	fi
 
-	## PRINT IF RAM OR SWAP ARE ABOVE THRESHOLD
-	if $ram_is_crit || $swap_is_crit ; then
-		local available=$(echo $mem_info | awk '{print $NF}')
-		local procs=$(ps --cols=80 -eo pmem,size,pid,cmd --sort=-%mem |\
-			      head -n 4 | tail -n 3 |\
-			      awk '{$2=int($2/1024)"MB";}
-		                   {printf("%5s%8s%8s\t%s\n", $1, $2, $3, $4)}')
 
-		printf "\n${fc_crit}MEMORY:\t "
-		printf "${fc_info}Only ${available} MB of RAM available!!\n"
-		printf "${fc_crit}    %%\t SIZE\t  PID\tCOMMAND\n"
-		printf "${fc_info}${procs}${fc_none}\n"
+		## CHECK SWAP
+		## First check if there is any swap at all by checking /proc/swaps
+		## If tehre is at least one swap partition listed, proceed
+		local swap_is_crit=false
+		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
+		if [ "$num_swap_devs" -ge 1 ]; then
+			local swap_info=$('free' -m | tail -n 1)
+			local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
+			local max=$(echo "$swap_info" | awk '{SWAP=($2)} END {printf SWAP}')
+			local percent=$(bc <<< "$current*100/$max")
+			if [ $percent -gt $crit_swap_percent ]; then
+				local swap_is_crit=true
+			fi
+		fi
+
+		## PRINT IF RAM OR SWAP ARE ABOVE THRESHOLD
+		if $ram_is_crit || $swap_is_crit ; then
+			local available=$(echo $mem_info | awk '{print $NF}')
+			local procs=$(ps --cols=80 -eo pmem,size,pid,cmd --sort=-%mem |\
+				      head -n 4 | tail -n 3 |\
+				      awk '{$2=int($2/1024)"MB";}
+				           {printf("%5s%8s%8s\t%s\n", $1, $2, $3, $4)}')
+
+			printf "\n${fc_crit}MEMORY:\t "
+			printf "${fc_info}Only ${available} MB of RAM available!!\n"
+			printf "${fc_crit}    %%\t SIZE\t  PID\tCOMMAND\n"
+			printf "${fc_info}${procs}${fc_none}\n"
+		fi
 	fi
 }
 
@@ -1158,91 +823,30 @@ printHogsMemory()
 ##	MAIN FUNCTION
 ##==============================================================================
 
+
 ## INCLUDE EXTERNAL DEPENDENCIES
-#include() { local pwd="$PWD" && cd "./$( dirname "${BASH_SOURCE[0]}" )" && source "$1" && cd "$pwd" ; }
-include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 include 'bash-tools/bash-tools/color.sh'
 include 'bash-tools/bash-tools/print_utils.sh'
+include 'config/synth-shell-greeter.config.default'
 
-
-
-## DEFAULT CONFIGURATION
-## WARNING! Do not edit directly, use configuration files instead
-
-logo="\e[38;5;213m                          __  __
-        _______  ______  / /_/ /_
-       / ___/ / / / __ \/ __/ __ \ 
-      /__  / /_/ / / / / /_/ / / /
-     /____/\__, /_/ /_/\__/_/ /_/
-          /____/
-\e[38;5;45m   _____ __  __________    __
-  / ___// / / / ____/ /   / /
-  \__ \/ /_/ / __/ / /   / /
- ___/ / __  / /___/ /___/ /___
-/____/_/ /_/_____/_____/_____/\e[0;39m"
-
-local print_info="
-	OS
-	KERNEL
-	CPU
-	GPU
-	SHELL
-	DATE
-	UPTIME
-	LOCALIPV4
-	EXTERNALIPV4
-	SERVICES
-	CPUTEMP
-	SYSLOAD_MON%
-	MEMORY_MON
-	SWAP_MON
-	HDDROOT_MON
-	HDDHOME_MON"
-
-local format_info="-c white"
-local format_highlight="-c blue  -e bold"
-local format_crit="-c 208   -e bold"
-local format_deco="-c white -e bold"
-local format_ok="-c blue  -e bold"
-local format_error="-c 208   -e bold -e blink"
-local format_logo="-c blue -e bold"
-
-local crit_cpu_percent=40
-local crit_ram_percent=75
-local crit_swap_percent=25
-local crit_hdd_percent=85
-local crit_home_percent=85
-
-local bar_length=13
-local bar_num_digits=5
-local info_label_width=16
-
-local print_cols_max=100
-local print_logo_right=false
-local date_format="%Y.%m.%d - %T"
-local print_cpu_hogs_num=3
-local print_cpu_hogs=true
-local print_memory_hogs=true
-local clear_before_print=false
-local print_extra_new_line_top=true
-local print_extra_new_line_bot=true
 
 
 ## LOAD USER CONFIGURATION
+local target_config_file=$1
 local user_config_file="$HOME/.config/synth-shell/synth-shell-greeter.config"
 local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
 local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
-if   [ -f $user_config_file ]; then
-	source $user_config_file
-elif [ "$USER" == "root" -a -f $root_config_file ]; then
-	source $root_config_file
-elif [ -f $sys_config_file ]; then
-	source $sys_config_file
+if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
+elif [ -f "$user_config_file" ]; then   source "$user_config_file" ;
+elif [ "$USER" == "root" -a -f $root_config_file ]; then source "$root_config_file" ;
+elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
+else : # Default config already "included" ; 
 fi
 
 
 
-## COLOR AND TEXT FORMAL CODE
+## COLOR AND TEXT FORMAT CODE
 local fc_info=$(getFormatCode $format_info)
 local fc_highlight=$(getFormatCode $format_highlight)
 local fc_crit=$(getFormatCode $format_crit)
@@ -1271,14 +875,16 @@ printHogsMemory
 	
 ## PRINT BOTTOM SPACER
 if $print_extra_new_line_bot; then echo ""; fi
+}
 
 
 
 ## RUN SCRIPT
 ## This whole script is wrapped with "{}" to avoid environment pollution.
 ## It's also called in a subshell with "()" to REALLY avoid pollution.
-}
-(greeter)
+(greeter $1)
 unset greeter
+
+
 
 ### EOF ###

@@ -17,7 +17,7 @@ logo="\e[38;5;213m                          __  __
         _______  ______  / /_/ /_
        / ___/ / / / __ \/ __/ __ \ 
       /__  / /_/ / / / / /_/ / / /
-     /____/\__, /_/ /_/\__/_/ /_/
+     /____/\__  /_/ /_/\__/_/ /_/
           /____/
 \e[38;5;45m   _____ __  __________    __
   / ___// / / / ____/ /   / /
@@ -126,13 +126,19 @@ format_logo="		-c blue	-e bold"
 ##==============================================================================
 
 crit_cpu_percent=40
+print_cpu_hogs_num=3		# Num processes to show if CPU usage is high
 crit_ram_percent=75
+print_memory_hogs=3		# Num processes to show if memory usage is high
 crit_swap_percent=25
 crit_hdd_percent=85
 crit_home_percent=85
 
+memory_units="MB"
+swap_units="MB"
+hdd_units="GB"
+home_units="GB"
 
-bar_length=6			# Number of characters that comprise a bar
+bar_length=9			# Number of characters that comprise a bar
 bar_num_digits=5		# Control num digits next to bar
 info_label_width=16		# Desired length of the info labels
 

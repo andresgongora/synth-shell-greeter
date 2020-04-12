@@ -27,15 +27,10 @@
 
 
 ##==============================================================================
-##	FUNCTIONS
-##==============================================================================
-
-
-##------------------------------------------------------------------------------
 ##
 setup()
 {
-	include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
+	include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 	include 'bash-tools/bash-tools/user_io.sh'
 	include 'bash-tools/bash-tools/hook_script.sh'
 	include 'bash-tools/bash-tools/assemble_script.sh'
@@ -44,7 +39,8 @@ setup()
 	## SWITCH BETWEEN AUTOMATIC AND USER INSTALLATION
 	if [ "$#" -eq 0 ]; then
 		local output_script="$HOME/.config/synth-shell/synth-shell-greeter.sh"
-		local output_config_dir="$HOME/.config/synth-shell/"
+		local output_config_dir="$HOME/.config/synth-shell"
+		cp "$output_config_dir/synth-shell-greeter.config" "$output_config_dir/synth-shell-greeter.config.backup"
 		printInfo "Installing script as $output_script"
 		local action=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
 		case "$action" in
@@ -60,7 +56,7 @@ setup()
 
 
 	## DEFINE LOCAL VARIABLES
-	local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+	local dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 	local input_script="$dir/synth-shell-greeter.sh"
 	local input_config_dir="$dir/config/"
 
@@ -106,12 +102,12 @@ setup()
 
 
 	## SETUP SCRIPT
-	assembleScript "$input_script" "$output_script" "$output_script_header" True
+	assembleScript "$input_script" "$output_script" "$output_script_header"
 
 
 	## SETUP CONFIGURATION FILES
 	[ -d "$output_config_dir" ] || mkdir -p "$output_config_dir"
-	cp -ur "$input_config_dir/." "$output_config_dir/"
+	cp -r "$input_config_dir/." "$output_config_dir/"
 
 
 	## SETUP DEFAULT SYNTH-SHELL-GREETER CONFIG FILE

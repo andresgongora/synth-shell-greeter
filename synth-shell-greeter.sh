@@ -622,20 +622,18 @@ printHeader()
 
 	## PRINT ONLY WHAT FITS IN THE TERMINAL
 	if [ $(( $logo_cols + $info_cols )) -le $term_cols ]; then
-		if $print_logo_right ; then
-			printTwoElementsSideBySide "$info" "$logo" "$print_cols_max"
-		else
-			printTwoElementsSideBySide "$logo" "$info" "$print_cols_max"
-		fi
-
-	elif [ $info_cols -le $term_cols ]; then
-		if $print_logo_right ; then
-			printTwoElementsSideBySide "$info" "" "$print_cols_max"
-		else
-			printTwoElementsSideBySide "" "$info" "$print_cols_max"
-		fi
+		: # everything fits
+	else
+		local logo=""
 	fi
-
+	if $print_logo_right ; then
+		local right="$logo"
+		local left="$info"
+	else
+		local right="$info"
+		local left="$logo"
+	fi
+	printTwoElementsSideBySide "$left" "$right" "$print_cols_max"
 }
 
 
@@ -682,49 +680,48 @@ printHogsCPU()
 	export LC_NUMERIC="C"
 
 	## CHECK GLOBAL PARAMETERS
-	if [ -z $crit_cpu_percent   ]; then exit 1; fi
-	if [ -z $print_cpu_hogs_num ]; then exit 1; fi
-	if [ -z $print_cpu_hogs     ]; then exit 1; fi
+	if [ -z $crit_cpu_percent   ]; then return ; fi
+	if [ -z $print_cpu_hogs_num ]; then local print_cpu_hogs_num=3 ; fi
+	if [ -z $print_cpu_hogs     ]; then return ; fi
 
 
 	## EXIT IF NOT ENABLED
-	if ! $print_cpu_hogs; then return; fi
+	if [ "$print_cpu_hogs"==true] ; then
+		## CHECK CPU LOAD
+		local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
+		local max=$(nproc --all)
+		local percent=$(bc <<< "$current*100/$max")
 
 
-	## CHECK CPU LOAD
-	local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
-	local max=$(nproc --all)
-	local percent=$(bc <<< "$current*100/$max")
-
-
-	if [ $percent -gt $crit_cpu_percent ]; then
-		## CALL TOP IN BATCH MODE
-		## Check if "%Cpus(s)" is shown, otherwise, call "top -1"
-		## Escape all '%' characters
-		local top=$(nice 'top' -b -d 0.01 -n 1 )
-		local cpus=$(echo "$top" | grep "Cpu(s)" )
-		if [ -z "$cpus" ]; then
-			local top=$(nice 'top' -b -d 0.01 -1 -n 1 )
+		if [ $percent -gt $crit_cpu_percent ]; then
+			## CALL TOP IN BATCH MODE
+			## Check if "%Cpus(s)" is shown, otherwise, call "top -1"
+			## Escape all '%' characters
+			local top=$(nice 'top' -b -d 0.01 -n 1 )
 			local cpus=$(echo "$top" | grep "Cpu(s)" )
+			if [ -z "$cpus" ]; then
+				local top=$(nice 'top' -b -d 0.01 -1 -n 1 )
+				local cpus=$(echo "$top" | grep "Cpu(s)" )
+			fi
+			local top=$(echo "$top" | sed 's/\%/\%\%/g' )
+
+
+			## EXTRACT ELEMENTS FROM TOP
+			## - load:    summary of cpu time spent for user/system/nice...
+			## - header:  the line just above the processes
+			## - procs:   the N most demanding procs in terms of CPU time
+			local load=$(echo "${cpus:9:36}" | tr '', ' ' )
+			local header=$(echo "$top" | grep "%CPU" )
+			local procs=$(echo "$top" |\
+				      sed  '/top - /,/%CPU/d' |\
+				      head -n "$print_cpu_hogs_num" )
+
+
+			## PRINT WITH FORMAT
+			printf "\n${fc_crit}SYSTEM LOAD:${fc_info}  ${load}\n"
+			printf "${fc_crit}$header${fc_none}\n"
+			printf "${fc_info}${procs}${fc_none}\n"
 		fi
-		local top=$(echo "$top" | sed 's/\%/\%\%/g' )
-
-
-		## EXTRACT ELEMENTS FROM TOP
-		## - load:    summary of cpu time spent for user/system/nice...
-		## - header:  the line just above the processes
-		## - procs:   the N most demanding procs in terms of CPU time
-		local load=$(echo "${cpus:9:36}" | tr '', ' ' )
-		local header=$(echo "$top" | grep "%CPU" )
-		local procs=$(echo "$top" |\
-		              sed  '/top - /,/%CPU/d' |\
-		              head -n "$print_cpu_hogs_num" )
-
-
-		## PRINT WITH FORMAT
-		printf "\n${fc_crit}SYSTEM LOAD:${fc_info}  ${load}\n"
-		printf "${fc_crit}$header${fc_none}\n"
-		printf "${fc_info}${procs}${fc_none}\n"
 	fi
 }
 
@@ -735,53 +732,52 @@ printHogsCPU()
 printHogsMemory()
 {
 	## CHECK GLOBAL PARAMETERS
-	if [ -z $crit_ram_percent  ]; then exit 1; fi
-	if [ -z $crit_swap_percent ]; then exit 1; fi
-	if [ -z $print_memory_hogs ]; then exit 1; fi
+	if [ -z $crit_ram_percent  ]; then return; fi
+	if [ -z $crit_swap_percent ]; then return; fi
+	if [ -z $print_memory_hogs ]; then local print_memory_hogs=3 ; fi
 
 
 	## EXIT IF NOT ENABLED
-	if ! $print_memory_hogs; then return; fi
-
-
-	## CHECK RAM
-	local ram_is_crit=false
-	local mem_info=$('free' -m | head -n 2 | tail -n 1)
-	local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
-	local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
-	local percent=$(bc <<< "$current*100/$max")
-	if [ $percent -gt $crit_ram_percent ]; then
-		local ram_is_crit=true
-	fi
-
-
-	## CHECK SWAP
-	## First check if there is any swap at all by checking /proc/swaps
-	## If tehre is at least one swap partition listed, proceed
-	local swap_is_crit=false
-	local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
-	if [ "$num_swap_devs" -ge 1 ]; then
-		local swap_info=$('free' -m | tail -n 1)
-		local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
-		local max=$(echo "$swap_info" | awk '{SWAP=($2)} END {printf SWAP}')
+	if [ "$print_memory_hogs"==true ]; then
+		## CHECK RAM
+		local ram_is_crit=false
+		local mem_info=$('free' -m | head -n 2 | tail -n 1)
+		local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
+		local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
 		local percent=$(bc <<< "$current*100/$max")
-		if [ $percent -gt $crit_swap_percent ]; then
-			local swap_is_crit=true
+		if [ $percent -gt $crit_ram_percent ]; then
+			local ram_is_crit=true
 		fi
-	fi
 
-	## PRINT IF RAM OR SWAP ARE ABOVE THRESHOLD
-	if $ram_is_crit || $swap_is_crit ; then
-		local available=$(echo $mem_info | awk '{print $NF}')
-		local procs=$(ps --cols=80 -eo pmem,size,pid,cmd --sort=-%mem |\
-			      head -n 4 | tail -n 3 |\
-			      awk '{$2=int($2/1024)"MB";}
-		                   {printf("%5s%8s%8s\t%s\n", $1, $2, $3, $4)}')
 
-		printf "\n${fc_crit}MEMORY:\t "
-		printf "${fc_info}Only ${available} MB of RAM available!!\n"
-		printf "${fc_crit}    %%\t SIZE\t  PID\tCOMMAND\n"
-		printf "${fc_info}${procs}${fc_none}\n"
+		## CHECK SWAP
+		## First check if there is any swap at all by checking /proc/swaps
+		## If tehre is at least one swap partition listed, proceed
+		local swap_is_crit=false
+		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
+		if [ "$num_swap_devs" -ge 1 ]; then
+			local swap_info=$('free' -m | tail -n 1)
+			local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
+			local max=$(echo "$swap_info" | awk '{SWAP=($2)} END {printf SWAP}')
+			local percent=$(bc <<< "$current*100/$max")
+			if [ $percent -gt $crit_swap_percent ]; then
+				local swap_is_crit=true
+			fi
+		fi
+
+		## PRINT IF RAM OR SWAP ARE ABOVE THRESHOLD
+		if $ram_is_crit || $swap_is_crit ; then
+			local available=$(echo $mem_info | awk '{print $NF}')
+			local procs=$(ps --cols=80 -eo pmem,size,pid,cmd --sort=-%mem |\
+				      head -n 4 | tail -n 3 |\
+				      awk '{$2=int($2/1024)"MB";}
+				           {printf("%5s%8s%8s\t%s\n", $1, $2, $3, $4)}')
+
+			printf "\n${fc_crit}MEMORY:\t "
+			printf "${fc_info}Only ${available} MB of RAM available!!\n"
+			printf "${fc_crit}    %%\t SIZE\t  PID\tCOMMAND\n"
+			printf "${fc_info}${procs}${fc_none}\n"
+		fi
 	fi
 }
 

@@ -470,6 +470,8 @@ printMonitorHDD()
 		"TB")		local units="TB"; local option="T" ;;
 		"PB")		local units="PB"; local option="P" ;;
 		*)		local units="GB"; local option="G" ;;
+	esac
+
 
 	local message="Storage /"
 	local units="GB"
@@ -497,6 +499,7 @@ printMonitorHome()
 		"TB")		local units="TB"; local option="T" ;;
 		"PB")		local units="PB"; local option="P" ;;
 		*)		local units="GB"; local option="G" ;;
+	esac
 
 
 	local message="Storage /home"

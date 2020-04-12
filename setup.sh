@@ -27,17 +27,10 @@
 
 
 ##==============================================================================
-##	FUNCTIONS
-##==============================================================================
-
-
-##------------------------------------------------------------------------------
 ##
 setup()
 {
 	include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
-
-
 	include 'bash-tools/bash-tools/user_io.sh'
 	include 'bash-tools/bash-tools/hook_script.sh'
 	include 'bash-tools/bash-tools/assemble_script.sh'

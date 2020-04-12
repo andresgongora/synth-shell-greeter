@@ -31,6 +31,10 @@ You may add your name, email, a link to your personal web-site/blog/profile
 	<sami@olmari.fi>  
 	www.olmari.fi  
 	2019 - Major improvements to `status.sh`
+	
+	
+*	**PeterJRiches**  
+	2019 - Proofreading of comments and explanation fixes
 
 	
 

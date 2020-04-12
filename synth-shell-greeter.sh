@@ -679,7 +679,6 @@ printInfoColorpaletteFancy()
 		"$(formatText "██" -c light-cyan)$(formatText "▀" -c cyan) "\
 		"$(formatText "██" -c white)$(formatText "▀" -c light-gray) ")
 
-	printInfo "" ""
 	printInfo "Color palette" "$palette_top"
 	printInfo "" "$palette_bot"
 }
@@ -1170,21 +1169,17 @@ include 'bash-tools/bash-tools/print_utils.sh'
 ## DEFAULT CONFIGURATION
 ## WARNING! Do not edit directly, use configuration files instead
 
-logo="\e[38;5;213m
-        _____             __  __   
-       / ___/__  ______  / /_/ /_  
-       \__ \/ / / / __ \/ __/ __ \ 
-      ___/ / /_/ / / / / /_/ / / / 
-     /____/\__, /_/ /_/\__/_/ /_/  
-          /____/                            
-\e[38;5;45m
-███████╗██╗  ██╗███████╗██╗     ██╗     
-██╔════╝██║  ██║██╔════╝██║     ██║     
-███████╗███████║█████╗  ██║     ██║     
-╚════██║██╔══██║██╔══╝  ██║     ██║     
-███████║██║  ██║███████╗███████╗███████╗
-╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
-\e[0;39m"
+logo="\e[38;5;213m                          __  __
+        _______  ______  / /_/ /_
+       / ___/ / / / __ \/ __/ __ \ 
+      /__  / /_/ / / / / /_/ / / /
+     /____/\__, /_/ /_/\__/_/ /_/
+          /____/
+\e[38;5;45m   _____ __  __________    __
+  / ___// / / / ____/ /   / /
+  \__ \/ /_/ / __/ / /   / /
+ ___/ / __  / /___/ /___/ /___
+/____/_/ /_/_____/_____/_____/\e[0;39m"
 
 local print_info="
 	OS

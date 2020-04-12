@@ -118,7 +118,7 @@ setup()
 		case "$distro" in
 			'arch' )		cp "$output_config_dir/os/synth-shell-greeter.archlinux.config" "$config_file" ;;
 			'manjaro' )		cp "$output_config_dir/os/synth-shell-greeter.manjaro.config" "$config_file" ;;
-			*)			cp "$output_config_dir/os/synth-shell-greeter.config.default" "$config_file" ;;
+			*)			cp "$output_config_dir/synth-shell-greeter.config.default" "$config_file" ;;
 		esac
 	fi
 }

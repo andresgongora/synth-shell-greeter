@@ -60,6 +60,8 @@ setup()
 	local input_script="$dir/synth-shell-greeter.sh"
 	local input_config_dir="$dir/config/"
 
+
+	## HEADER TO BE ADDED AT THE TOP OF THE ASSEMBLED SCRIPT
 	local output_script_header=$(printf '%s'\
 	"##!/bin/bash\n"\
 	"\n"\

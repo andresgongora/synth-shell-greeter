@@ -254,7 +254,7 @@ printInfoGPU() { printInfo "GPU" "$(getNameGPU)" ; }
 printInfoLocalIPv4() { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
 
-
+printInfoSpacer() { printInfo "" "" ; }
 
 
 
@@ -339,9 +339,7 @@ printInfoColorpaletteFancy()
 
 ##------------------------------------------------------------------------------
 ##
-printInfoSpacer() {
-	printInfo "" ""
-}
+
 
 
 

@@ -17,7 +17,7 @@ logo="\e[38;5;213m                          __  __
         _______  ______  / /_/ /_
        / ___/ / / / __ \/ __/ __ \ 
       /__  / /_/ / / / / /_/ / / /
-     /____/\__, /_/ /_/\__/_/ /_/
+     /____/\__  /_/ /_/\__/_/ /_/
           /____/
 \e[38;5;45m   _____ __  __________    __
   / ___// / / / ____/ /   / /
@@ -134,7 +134,7 @@ crit_hdd_percent=85
 crit_home_percent=85
 
 
-bar_length=6			# Number of characters that comprise a bar
+bar_length=9			# Number of characters that comprise a bar
 bar_num_digits=5		# Control num digits next to bar
 info_label_width=16		# Desired length of the info labels
 

@@ -39,7 +39,8 @@ setup()
 	## SWITCH BETWEEN AUTOMATIC AND USER INSTALLATION
 	if [ "$#" -eq 0 ]; then
 		local output_script="$HOME/.config/synth-shell/synth-shell-greeter.sh"
-		local output_config_dir="$HOME/.config/synth-shell/"
+		local output_config_dir="$HOME/.config/synth-shell"
+		cp "$output_config_dir/synth-shell-greeter.config" "$output_config_dir/synth-shell-greeter.config.backup"
 		printInfo "Installing script as $output_script"
 		local action=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
 		case "$action" in

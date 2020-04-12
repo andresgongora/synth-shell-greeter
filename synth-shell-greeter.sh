@@ -404,9 +404,17 @@ printMonitorCPU()
 ##
 printMonitorRAM()
 {
+	## CHOOSE UNITS
+	case "$memory_units" in
+		"MB")		local units="MB"; local option="--mebi" ;;
+		"TB")		local units="TB"; local option="--tebi" ;;
+		"PB")		local units="PB"; local option="--pebi" ;;
+		*)		local units="GB"; local option="--gibi" ;;
+	esac
+
+
 	local message="Memory"
-	local units="MB"
-	local mem_info=$('free' -m | head -n 2 | tail -n 1)
+	local mem_info=$('free' "$option" | head -n 2 | tail -n 1)
 	local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
 	local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
 
@@ -425,8 +433,16 @@ printMonitorRAM()
 ##
 printMonitorSwap()
 {
+	## CHOOSE UNITS
+	case "$swap_units" in
+		"MB")		local units="MB"; local option="--mebi" ;;
+		"TB")		local units="TB"; local option="--tebi" ;;
+		"PB")		local units="PB"; local option="--pebi" ;;
+		*)		local units="GB"; local option="--gibi" ;;
+	esac
+
+
 	local message="Swap"
-	local units="MB"
 	local as_percentage=$1
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
@@ -443,7 +459,7 @@ printMonitorSwap()
 		printf "${fc_info}%-${pad}s${fc_highlight}N/A${fc_none}" "${message}"
 	
 	else ## HAS SWAP	
-		local swap_info=$('free' -m | tail -n 1)
+		local swap_info=$('free' "$option" | tail -n 1)
 		local current=$(echo "$swap_info" |\
 		                awk '{SWAP=($3)} END {printf SWAP}')
 		local max=$(echo "$swap_info" |\

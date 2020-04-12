@@ -133,6 +133,8 @@ crit_swap_percent=25
 crit_hdd_percent=85
 crit_home_percent=85
 
+memory_units="MB"
+swap_units="MB"
 hdd_units="GB"
 home_units="GB"
 

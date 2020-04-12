@@ -91,14 +91,22 @@ getDate()
 ##==============================================================================
 ##
 getUptime() {
-	local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
-	                                s/s//g;
-	                                s/ year/y/g;
-	                                s/ month/m/g;
-	                                s/ week/w/g;
-	                                s/ day/d/g;
-	                                s/ hour, /:/g;
-	                                s/ minute//g')
+	$(uptime -p >/dev/null 2>&1) && local pretty=true
+
+	if [ $pretty==true ]; then
+		local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
+			                        s/s//g;
+			                        s/ year/y/g;
+			                        s/ month/m/g;
+			                        s/ week/w/g;
+			                        s/ day/d/g;
+			                        s/ hour, /:/g;
+			                        s/ minute//g')
+	else
+		local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
+		                                s/,.*$//g')
+	fi
+
 	printf "$uptime"
 }
 

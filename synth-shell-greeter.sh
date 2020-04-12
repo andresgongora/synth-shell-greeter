@@ -679,8 +679,9 @@ printInfoColorpaletteFancy()
 		"$(formatText "██" -c light-cyan)$(formatText "▀" -c cyan) "\
 		"$(formatText "██" -c white)$(formatText "▀" -c light-gray) ")
 
-	printInfo "" "$palette_top"
-	printInfo "Color palette" "$palette_bot"
+	printInfo "" ""
+	printInfo "Color palette" "$palette_top"
+	printInfo "" "$palette_bot"
 }
 
 

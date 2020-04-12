@@ -1225,7 +1225,7 @@ local print_cpu_hogs=true
 local print_memory_hogs=true
 local clear_before_print=false
 local print_extra_new_line_top=true
-local print_extra_new_line_bot=false
+local print_extra_new_line_bot=true
 
 
 ## LOAD USER CONFIGURATION

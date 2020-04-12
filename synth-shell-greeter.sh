@@ -464,10 +464,17 @@ printMonitorHDD()
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
 
+	## CHOOSE UNITS
+	case "$hdd_units" in
+		"MB")		local units="MB"; local option="M" ;;
+		"TB")		local units="TB"; local option="T" ;;
+		"PB")		local units="PB"; local option="P" ;;
+		*)		local units="GB"; local option="G" ;;
+
 	local message="Storage /"
 	local units="GB"
-	local current=$(df -B1G / | grep "/" |awk '{key=($3)} END {printf key}')
-	local max=$(df -B1G / | grep "/" | awk '{key=($2)} END {printf key}')
+	local current=$(df "-B1${option}" / | grep "/" |awk '{key=($3)} END {printf key}')
+	local max=$(df "-B1${option}" / | grep "/" | awk '{key=($2)} END {printf key}')
 
 
 	printMonitor $current $max $crit_hdd_percent \
@@ -477,17 +484,24 @@ printMonitorHDD()
 
 
 ##------------------------------------------------------------------------------
-##
+## 
 printMonitorHome()
 {
 	local as_percentage=$1
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
+	
+	## CHOOSE UNITS
+	case "$home_units" in
+		"MB")		local units="MB"; local option="M" ;;
+		"TB")		local units="TB"; local option="T" ;;
+		"PB")		local units="PB"; local option="P" ;;
+		*)		local units="GB"; local option="G" ;;
+
 
 	local message="Storage /home"
-	local units="GB"
-	local current=$(df -B1G ~ | grep "/" |awk '{key=($3)} END {printf key}')
-	local max=$(df -B1G ~ | grep "/" | awk '{key=($2)} END {printf key}')
+	local current=$(df "-B1${option}" ~ | grep "/" |awk '{key=($3)} END {printf key}')
+	local max=$(df "-B1${option}" ~ | grep "/" | awk '{key=($2)} END {printf key}')
 
 
 	printMonitor $current $max $crit_home_percent \

@@ -133,6 +133,8 @@ crit_swap_percent=25
 crit_hdd_percent=85
 crit_home_percent=85
 
+hdd_units="GB"
+home_units="GB"
 
 bar_length=9			# Number of characters that comprise a bar
 bar_num_digits=5		# Control num digits next to bar

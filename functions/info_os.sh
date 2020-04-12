@@ -94,6 +94,7 @@ getUptime() {
 	$(uptime -p >/dev/null 2>&1) && local pretty=true
 
 	if [ $pretty==true ]; then
+		echo "PRETTY!!"
 		local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
 			                        s/s//g;
 			                        s/ year/y/g;

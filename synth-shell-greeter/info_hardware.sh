@@ -107,7 +107,7 @@ getNameGPU()
 
 ##==============================================================================
 ##
-getCPUUtilization()
+getCPULoad()
 {
 	local avg_load=$(uptime | sed 's/^.*load average: //g')	
 	printf "$avg_load"

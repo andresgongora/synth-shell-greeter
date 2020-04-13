@@ -245,23 +245,23 @@ printMonitor()
 ##	INFO
 ##==============================================================================
 
-printInfoOS() { printInfo "OS" "$(getNameOS)" ; }
-printInfoKernel() { printInfo "Kernel" "$(getNameKernel)" ; }
-printInfoShell() { printInfo "Shell" "$(getNameShell)" ; }
-printInfoDate() { printInfo "Date" "$(getDate)" ; }
-printInfoUptime() { printInfo "Uptime" "$(getUptime)" ; }
-printInfoUser() { printInfo "User" "$(getUserHost)" ; }
-printInfoNumLoggedIn() { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
+printInfoOS()           { printInfo "OS" "$(getNameOS)" ; }
+printInfoKernel()       { printInfo "Kernel" "$(getNameKernel)" ; }
+printInfoShell()        { printInfo "Shell" "$(getNameShell)" ; }
+printInfoDate()         { printInfo "Date" "$(getDate)" ; }
+printInfoUptime()       { printInfo "Uptime" "$(getUptime)" ; }
+printInfoUser()         { printInfo "User" "$(getUserHost)" ; }
+printInfoNumLoggedIn()  { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
 printInfoNameLoggedIn() { printInfo "Logged in" "$(getNameLoggedInUsers)" ; }
 
-printInfoCPU() { printInfo "CPU" "$(getNameCPU)" ; }
-printInfoGPU() { printInfo "GPU" "$(getNameGPU)" ; }
-printInfoCPUUtilization() { printInfo "Sys load" "$(getCPUUtilization)" ; }
+printInfoCPU()          { printInfo "CPU" "$(getNameCPU)" ; }
+printInfoGPU()          { printInfo "GPU" "$(getNameGPU)" ; }
+printInfoCPULoad()      { printInfo "Sys load" "$(getCPULoad)" ; }
 
-printInfoLocalIPv4() { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
+printInfoLocalIPv4()    { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
 
-printInfoSpacer() { printInfo "" "" ; }
+printInfoSpacer()       { printInfo "" "" ; }
 
 
 
@@ -601,7 +601,7 @@ printStatusInfo()
 			PALETTE_SMALL)  printInfoColorpaletteSmall;;
 			PALETTE)        printInfoColorpaletteFancy;;
 			SPACER)         printInfoSpacer;;
-			CPUUTILIZATION) printInfoCPUUtilization;;
+			CPULOAD) printInfoCPULoad;;
 			CPUTEMP)        printInfoCPUTemp;;
 
 		## 	USAGE MONITORS (BARS)
@@ -874,7 +874,7 @@ printHogsCPU
 printHogsMemory
 
 
-	
+
 ## PRINT BOTTOM SPACER
 if $print_extra_new_line_bot; then echo ""; fi
 }

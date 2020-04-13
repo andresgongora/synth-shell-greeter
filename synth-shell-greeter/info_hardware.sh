@@ -87,6 +87,7 @@ getNameGPU()
 		                 s/\[AMD\/ATI\]/ATI/g;
 		                 s/Integrated Graphics Controller/HD Graphics/g;
 		                 s/Integrated Controller/IC/g;
+		                 s/Generation Integrated/Gen IC/g;
 		                 s/  */ /g'
 		           )
 

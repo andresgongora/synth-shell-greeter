@@ -147,7 +147,7 @@ info_label_width=16             # Desired length of the info labels
 bar_bracket_char_left='['
 bar_bracket_char_right=']'
 bar_fill_char='|'
-bar_empty_char=' '
+bar_background_char=' '
 
 
 ##==============================================================================

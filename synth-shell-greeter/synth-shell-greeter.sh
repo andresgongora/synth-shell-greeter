@@ -36,32 +36,74 @@ greeter()
 include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
-include '../bash-tools/bash-tools/print_bar.sh'
-include '../config/synth-shell-greeter.config.default'
-include 'info_os.sh'
-include 'info_hardware.sh'
-include 'info_network.sh'
 
+
+
+#######################################################################
+assert_equal()
+{
+	E_PARAM_ERR=98
+	E_ASSERT_FAILED=99
+
+	
+
+	if [ -z "$1" ]; then
+		echo "Assert called in $0 with empty argument"
+		exit $E_PARAM_ERR
+	fi
+
+
+	if [ ! $1 ]; then
+		echo "Assertion failed in $0: \"$1\" . $2"
+		exit $E_ASSERT_FAILED
+	fi  
+}
+#######################################################################
 
 
 ##==============================================================================
 ##	INFO AND MONITOR PRINTING HELPERS
 ##==============================================================================
 
-##------------------------------------------------------------------------------
-##
-##	printInfoLine(LABEL, VALUE)
+
+
+_getStateColor()
+{
+	local state=$1
+	local E_PARAM_ERR=98
+
+	case $state in
+		nominal)	echo $fc_ok ;;
+		critical)	echo $fc_crit ;;
+		error)		echo $fc_error ;;
+		*)		echo "$state not valid" ; exit $E_ASSERT_FAILED
+	esac
+
+}
+
+
+##==============================================================================
+##	printInfoLine()
 ##	Print a formatted message comprised of a label and a value
-##	1. LABEL will be printed with info color
-##	2. VALUE will be printed with highlight color
+##
+##	Arguments:
+##	1. LABEL
+##	2. VALUE
+##
+##	Optional arguments:
+##	3. STATE	Determines the color (nominal/critical/error)
 ##
 printInfoLine()
 {
-	label=$1
-	value=$2
-	pad=$info_label_width
+	local label=$1
+	local value=$2
+	local state=${3:-nominal}
 
-	printf "${fc_info}%-${pad}s${fc_highlight}${value}${fc_none}\n" "$label"
+	local fc_label=${fc_info}
+	local fc_value=$(_getStateColor $state)
+	local pad=$info_label_width
+
+	printf "${fc_label}%-${pad}s${fc_value}${value}${fc_none}\n" "$label"
 }
 
 
@@ -70,12 +112,12 @@ printInfoLine()
 
 
 
-##------------------------------------------------------------------------------
-##
-##	printFraction(NUMERATOR, DENOMINATOR, PADDING_DIGITS, UNITS)
+##==============================================================================
+##	printFraction()
 ##
 ##	Prints a color-formatted fraction with padding to reach MAX_DIGITS.
 ##
+##	Arguments:
 ##	1. NUMERATOR:      first shown number
 ##	2. DENOMINATOR:    second shown number
 ##	3. PADDING_DIGITS: determines the minimum length of NUMERATOR and
@@ -84,7 +126,9 @@ printInfoLine()
 ##	4. UNITS: a string that is attached to the end of the fraction,
 ##	          meant to include optional units (e.g. MB) for display purposes.
 ##	          If "none", no units are displayed.
-##	5,6,7. COLORS: of decoration (/), numbers, and units.
+##
+##	Optional arguments:
+##	5. STATE	Determines the color (nominal/critical/error)
 ##
 printFraction()
 {
@@ -92,9 +136,11 @@ printFraction()
 	local b=$2
 	local padding=$3
 	local units=$4
-	local deco_color=$5
-	local num_color=$6
-	local units_color=$7
+	local state=${5:-nominal}
+
+	local deco_color=$fc_info
+	local num_color=$(_getStateColor $state)
+	local units_color=$num_color
 
 	if [ $units == "none" ]; then local units=""; fi
 
@@ -106,8 +152,41 @@ printFraction()
 
 
 
-##------------------------------------------------------------------------------
-##
+
+include '../bash-tools/bash-tools/print_bar.sh'
+printResourceBar()
+{
+	local label=$1
+	local current=$2
+	local max=$3
+	local bar_length=$4
+	local state=${5:-nominal}
+
+
+	## CHOOSE COLORS AND PADDING
+	local fc_label=${fc_info}
+	local pad=$info_label_width
+	local fc_fill_color=$(_getStateColor $state)
+	local fc_bracket_color=$fc_deco
+
+
+	## COMPOSE CHARACTERS FOR BAR
+	local bracket_left=$fc_bracket_color$bar_bracket_char_left
+	local fill=$fc_fill_color$bar_fill_char
+	local background=$fc_none$bar_background_char
+	local bracket_right=$fc_bracket_color$bar_bracket_char_right$fc_none
+
+
+	## PRINT LABEL AND BAR
+	printf "${fc_label}%-${pad}s" "$label"
+	printBar "$current" "$max" "$bar_length" \
+	         "$bracket_left" "$fill" "$background" "$bracket_right"
+}
+
+
+
+
+##==============================================================================
 ##	printMonitor()
 ##
 ##	Prints a resource utilization monitor, comprised of a bar and a fraction.
@@ -167,31 +246,27 @@ printMonitor()
 	local fc_txt_1=$fc_info
 	local fc_txt_2=$fc_ok
 	local fc_txt_3=$fc_ok
+	local state="nominal"
 	if   [ $percent -gt 99 ]; then
 		local fc_bar_2=$fc_error
 		local fc_txt_2=$fc_crit
+		local state="error"
 	elif [ $percent -gt $crit_percent ]; then
 		local fc_bar_2=$fc_crit
 		local fc_txt_2=$fc_crit
+		local state="critical"
 	fi
 
 
 	## PRINT BAR
-	printf "${fc_info}%-${pad}s" "$label"
-	printBar "$current" "$max" "$bar_length" \
-	         "$fc_bar_1$bar_bracket_char_left" \
-	         "$fc_bar_2$bar_fill_char" \
-	         "$fc_bar_2$bar_empty_char" \
-	         "$fc_bar_1$bar_bracket_char_right$fc_none"
-
+	printResourceBar "$label" "$current" "$max" "$bar_length" "$state"
 
 	## PRINT NUMERIC VALUE
 	if $print_as_percentage; then
 		printf "${fc_txt_2}%${bar_num_digits}s${fc_txt_1} %%%%${fc_none}" $percent
 	else
 		printf " "
-		printFraction $current $max $bar_num_digits $units \
-		              $fc_txt_1 $fc_txt_2 $fc_txt_3
+		printFraction "$current" "$max" "$bar_num_digits" "$units" "$state"
 	fi
 }
 
@@ -203,6 +278,7 @@ printMonitor()
 ##	INFO
 ##==============================================================================
 
+include 'info_os.sh'
 printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
 printInfoKernel()       { printInfoLine "Kernel" "$(getNameKernel)" ; }
 printInfoShell()        { printInfoLine "Shell" "$(getNameShell)" ; }
@@ -212,10 +288,12 @@ printInfoUser()         { printInfoLine "User" "$(getUserHost)" ; }
 printInfoNumLoggedIn()  { printInfoLine "Logged in" "$(getNumberLoggedInUsers)" ; }
 printInfoNameLoggedIn() { printInfoLine "Logged in" "$(getNameLoggedInUsers)" ; }
 
+include 'info_hardware.sh'
 printInfoCPU()          { printInfoLine "CPU" "$(getNameCPU)" ; }
 printInfoGPU()          { printInfoLine "GPU" "$(getNameGPU)" ; }
 printInfoCPULoad()      { printInfoLine "Sys load" "$(getCPULoad)" ; }
 
+include 'info_network.sh'
 printInfoLocalIPv4()    { printInfoLine "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfoLine "External IPv4" "$(getExternalIPv4)" ; }
 
@@ -241,9 +319,9 @@ printInfoSystemctl()
 	if   [ "$systcl_num_failed" -eq "0" ]; then
 		local sysctl="All services OK"
 	elif [ "$systcl_num_failed" -eq "1" ]; then
-		local sysctl="${fc_error}1 service failed!${fc_none}"
+		local sysctl="${fc_error}1 service failed!"
 	else
-		local sysctl="${fc_error}$systcl_num_failed services failed!${fc_none}"
+		local sysctl="${fc_error}$systcl_num_failed services failed!"
 	fi
 
 	printInfoLine "Services" "$sysctl"
@@ -781,13 +859,22 @@ printHogsMemory()
 
 
 
-## LOAD USER CONFIGURATION
-local target_config_file=$1
-local user_config_file="$HOME/.config/synth-shell/synth-shell-greeter.config"
+## LOAD CONFIGURATION
+## Load default configuration file with all arguments, then try to load any of
+## following in order, until first match, to override some or all config params.
+## 1. Apply specific configuration file if specified as argument.
+## 2. User specific configuration if in user's home folder.
+## 3. If root, apply root configuration file if it exists in the system.
+## 4. System wide configuration file if it exists.
+## 5. Fall back to defaults.
+##
+include '../config/synth-shell-greeter.config.default'
+local target_config_file="$1" # can be empty
+local user_config_file="~/.config/synth-shell/synth-shell-greeter.config"
 local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
 local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
 if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
-elif [ -f "$user_config_file" ]; then   source "$user_config_file" ;
+elif [ -f "$user_config_file" ]; then source "$user_config_file" ;
 elif [ -f $root_config_file -a "$USER" == "root" ]; then source "$root_config_file" ;
 elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
 else : # Default config already "included" ; 

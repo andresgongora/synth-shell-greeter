@@ -36,6 +36,7 @@ greeter()
 include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
+include '../bash-tools/bash-tools/print_bar.sh'
 include '../config/synth-shell-greeter.config.default'
 include 'info_os.sh'
 include 'info_hardware.sh'
@@ -49,12 +50,12 @@ include 'info_network.sh'
 
 ##------------------------------------------------------------------------------
 ##
-##	printInfo(LABEL, VALUE)
+##	printInfoLine(LABEL, VALUE)
 ##	Print a formatted message comprised of a label and a value
 ##	1. LABEL will be printed with info color
 ##	2. VALUE will be printed with highlight color
 ##
-printInfo()
+printInfoLine()
 {
 	label=$1
 	value=$2
@@ -65,54 +66,7 @@ printInfo()
 
 
 
-##------------------------------------------------------------------------------
-##
-##	printBar(CURRENT, MAX, SIZE, COLOR, COLOR)
-##
-##	Prints a bar that is filled depending on the relation between
-##	CURRENT and MAX
-##
-##	1. CURRENT:       amount to display on the bar.
-##	2. MAX:           amount that means that the bar should be printed
-##	                  completely full.
-##	3. SIZE:          length of the bar as number of characters.
-##	4. BRACKET_COLOR: Color for the brackets. May be empty for not colored.
-##	5. BAR_COLOR:	  Color for the bars. May be empty for not colored.
-##
-printBar()
-{
-	## VARIABLES
-	local current=$1
-	local max=$2
-	local size=$3
-	local bracket_color=$4
-	local bar_color=$5
 
-
-	## COMPUTE VARIABLES
-	local num_bars=$(bc <<< "$size * $current / $max")
-	if [ $num_bars -gt $size ]; then
-		num_bars=$size
-	fi
-
-
-	## PRINT BAR
-	## - Opening bracket
-	## - Full bars
-	## - Remaining empty space
-	## - Closing bracket
-	printf "${bracket_color}[${bar_color}"
-	i=0
-	while [ $i -lt $num_bars ]; do
-		printf "|"
-		i=$[$i+1]
-	done
-	while [ $i -lt $size ]; do
-		printf " "
-		i=$[$i+1]
-	done
-	printf "${bracket_color}]${fc_none}"
-}
 
 
 
@@ -224,7 +178,7 @@ printMonitor()
 
 	## PRINT BAR
 	printf "${fc_info}%-${pad}s" "$label"
-	printBar $current $max $bar_length $fc_bar_1 $fc_bar_2
+	printBar $current $max $bar_length $fc_bar_1 $fc_bar_2 $bar_bracket_char_left $bar_bracket_char_right $bar_fill_char $bar_empty_char 
 
 
 	## PRINT NUMERIC VALUE
@@ -245,23 +199,23 @@ printMonitor()
 ##	INFO
 ##==============================================================================
 
-printInfoOS()           { printInfo "OS" "$(getNameOS)" ; }
-printInfoKernel()       { printInfo "Kernel" "$(getNameKernel)" ; }
-printInfoShell()        { printInfo "Shell" "$(getNameShell)" ; }
-printInfoDate()         { printInfo "Date" "$(getDate)" ; }
-printInfoUptime()       { printInfo "Uptime" "$(getUptime)" ; }
-printInfoUser()         { printInfo "User" "$(getUserHost)" ; }
-printInfoNumLoggedIn()  { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
-printInfoNameLoggedIn() { printInfo "Logged in" "$(getNameLoggedInUsers)" ; }
+printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
+printInfoKernel()       { printInfoLine "Kernel" "$(getNameKernel)" ; }
+printInfoShell()        { printInfoLine "Shell" "$(getNameShell)" ; }
+printInfoDate()         { printInfoLine "Date" "$(getDate)" ; }
+printInfoUptime()       { printInfoLine "Uptime" "$(getUptime)" ; }
+printInfoUser()         { printInfoLine "User" "$(getUserHost)" ; }
+printInfoNumLoggedIn()  { printInfoLine "Logged in" "$(getNumberLoggedInUsers)" ; }
+printInfoNameLoggedIn() { printInfoLine "Logged in" "$(getNameLoggedInUsers)" ; }
 
-printInfoCPU()          { printInfo "CPU" "$(getNameCPU)" ; }
-printInfoGPU()          { printInfo "GPU" "$(getNameGPU)" ; }
-printInfoCPULoad()      { printInfo "Sys load" "$(getCPULoad)" ; }
+printInfoCPU()          { printInfoLine "CPU" "$(getNameCPU)" ; }
+printInfoGPU()          { printInfoLine "GPU" "$(getNameGPU)" ; }
+printInfoCPULoad()      { printInfoLine "Sys load" "$(getCPULoad)" ; }
 
-printInfoLocalIPv4()    { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
-printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
+printInfoLocalIPv4()    { printInfoLine "Local IPv4" "$(getLocalIPv4)" ; }
+printInfoExternalIPv4() { printInfoLine "External IPv4" "$(getExternalIPv4)" ; }
 
-printInfoSpacer()       { printInfo "" "" ; }
+printInfoSpacer()       { printInfoLine "" "" ; }
 
 
 
@@ -288,7 +242,7 @@ printInfoSystemctl()
 		local sysctl="${fc_error}$systcl_num_failed services failed!${fc_none}"
 	fi
 
-	printInfo "Services" "$sysctl"
+	printInfoLine "Services" "$sysctl"
 }
 
 
@@ -309,7 +263,7 @@ printInfoColorpaletteSmall()
 	"$(formatText "$char" -c cyan -b light-cyan)"\
 	"$(formatText "$char" -c light-gray -b white)")
 
-	printInfo "Color palette" "$palette"
+	printInfoLine "Color palette" "$palette"
 }
 
 
@@ -338,8 +292,8 @@ printInfoColorpaletteFancy()
 		"$(formatText "██" -c light-cyan)$(formatText "▀" -c cyan) "\
 		"$(formatText "██" -c white)$(formatText "▀" -c light-gray) ")
 
-	printInfo "Color palette" "$palette_top"
-	printInfo "" "$palette_bot"
+	printInfoLine "Color palette" "$palette_top"
+	printInfoLine "" "$palette_bot"
 }
 
 
@@ -376,9 +330,9 @@ printInfoCPUTemp()
 
 		
 		## PRINT MESSAGE
-		printInfo "CPU temp" "$temp"
+		printInfoLine "CPU temp" "$temp"
 	else
-		printInfo "CPU temp" "lm-sensors not installed"
+		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
 
 	
@@ -400,7 +354,7 @@ printMonitorCPU()
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
 
-	printMonitor $current $max $crit_cpu_percent \
+	printMonitor $current $max $bar_cpu_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -411,7 +365,7 @@ printMonitorCPU()
 printMonitorRAM()
 {
 	## CHOOSE UNITS
-	case "$memory_units" in
+	case "$bar_ram_units" in
 		"MB")		local units="MB"; local option="--mega" ;;
 		"TB")		local units="TB"; local option="--tera" ;;
 		"PB")		local units="PB"; local option="--peta" ;;
@@ -429,7 +383,7 @@ printMonitorRAM()
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
 
-	printMonitor $current $max $crit_ram_percent \
+	printMonitor $current $max $bar_ram_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -440,7 +394,7 @@ printMonitorRAM()
 printMonitorSwap()
 {
 	## CHOOSE UNITS
-	case "$swap_units" in
+	case "$bar_swap_units" in
 		"MB")		local units="MB"; local option="--mebi" ;;
 		"TB")		local units="TB"; local option="--tebi" ;;
 		"PB")		local units="PB"; local option="--pebi" ;;
@@ -471,7 +425,7 @@ printMonitorSwap()
 		local max=$(echo "$swap_info" |\
 		            awk '{SWAP=($2)} END {printf SWAP}')
 
-		printMonitor $current $max $crit_swap_percent \
+		printMonitor $current $max $bar_swap_crit_percent \
 		             $as_percentage $units $message
 	fi
 }
@@ -487,7 +441,7 @@ printMonitorHDD()
 
 
 	## CHOOSE UNITS
-	case "$hdd_units" in
+	case "$bar_hdd_units" in
 		"MB")		local units="MB"; local option="M" ;;
 		"TB")		local units="TB"; local option="T" ;;
 		"PB")		local units="PB"; local option="P" ;;
@@ -501,7 +455,7 @@ printMonitorHDD()
 	local max=$(df "-B1${option}" / | grep "/" | awk '{key=($2)} END {printf key}')
 
 
-	printMonitor $current $max $crit_hdd_percent \
+	printMonitor $current $max $bar_hdd_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -516,7 +470,7 @@ printMonitorHome()
 
 	
 	## CHOOSE UNITS
-	case "$home_units" in
+	case "$bar_home_units" in
 		"MB")		local units="MB"; local option="M" ;;
 		"TB")		local units="TB"; local option="T" ;;
 		"PB")		local units="PB"; local option="P" ;;
@@ -529,7 +483,7 @@ printMonitorHome()
 	local max=$(df "-B1${option}" ~ | grep "/" | awk '{key=($2)} END {printf key}')
 
 
-	printMonitor $current $max $crit_home_percent \
+	printMonitor $current $max $bar_home_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -561,7 +515,7 @@ printMonitorCPUTemp()
 		printMonitor $current $max $crit_percent \
 	        	     false $units "CPU temp"
 	else
-		printInfo "CPU temp" "lm-sensors not installed"
+		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
 }
 
@@ -618,7 +572,7 @@ printStatusInfo()
 			HDDHOME_MON%)   printMonitorHome       true;;
 			CPUTEMP_MON)    printMonitorCPUTemp;;
 
-			*)              printInfo "Unknown" "Check your config";;
+			*)              printInfoLine "Unknown" "Check your config";;
 		esac
 	}
 
@@ -718,21 +672,15 @@ printHogsCPU()
 {
 	export LC_NUMERIC="C"
 
-	## CHECK GLOBAL PARAMETERS
-	if [ -z $crit_cpu_percent   ]; then return ; fi
-	if [ -z $print_cpu_hogs_num ]; then local print_cpu_hogs_num=3 ; fi
-	if [ -z $print_cpu_hogs     ]; then return ; fi
-
-
 	## EXIT IF NOT ENABLED
-	if [ "$print_cpu_hogs"==true] ; then
+	if [ "$cpu_crit_print"==true ]; then
 		## CHECK CPU LOAD
 		local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
 		local max=$(nproc --all)
 		local percent=$(bc <<< "$current*100/$max")
 
 
-		if [ $percent -gt $crit_cpu_percent ]; then
+		if [ $percent -gt $bar_cpu_crit_percent ]; then
 			## CALL TOP IN BATCH MODE
 			## Check if "%Cpus(s)" is shown, otherwise, call "top -1"
 			## Escape all '%' characters
@@ -753,13 +701,13 @@ printHogsCPU()
 			local header=$(echo "$top" | grep "%CPU" )
 			local procs=$(echo "$top" |\
 				      sed  '/top - /,/%CPU/d' |\
-				      head -n "$print_cpu_hogs_num" )
+				      head -n "$cpu_crit_print_num" )
 
 
 			## PRINT WITH FORMAT
 			printf "\n${fc_crit}SYSTEM LOAD:${fc_info}  ${load}\n"
 			printf "${fc_crit}$header${fc_none}\n"
-			printf "${fc_info}${procs}${fc_none}\n"
+			printf "${fc_text}${procs}${fc_none}\n"
 		fi
 	fi
 }
@@ -770,21 +718,15 @@ printHogsCPU()
 ##
 printHogsMemory()
 {
-	## CHECK GLOBAL PARAMETERS
-	if [ -z $crit_ram_percent  ]; then return; fi
-	if [ -z $crit_swap_percent ]; then return; fi
-	if [ -z $print_memory_hogs ]; then local print_memory_hogs=3 ; fi
-
-
 	## EXIT IF NOT ENABLED
-	if [ "$print_memory_hogs"==true ]; then
+	if [ "$ram_crit_print"==true ]; then
 		## CHECK RAM
 		local ram_is_crit=false
 		local mem_info=$('free' -m | head -n 2 | tail -n 1)
 		local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
 		local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
 		local percent=$(bc <<< "$current*100/$max")
-		if [ $percent -gt $crit_ram_percent ]; then
+		if [ $percent -gt $bar_ram_crit_percent ]; then
 			local ram_is_crit=true
 		fi
 
@@ -799,7 +741,7 @@ printHogsMemory()
 			local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
 			local max=$(echo "$swap_info" | awk '{SWAP=($2)} END {printf SWAP}')
 			local percent=$(bc <<< "$current*100/$max")
-			if [ $percent -gt $crit_swap_percent ]; then
+			if [ $percent -gt $bar_swap_crit_percent ]; then
 				local swap_is_crit=true
 			fi
 		fi
@@ -808,7 +750,8 @@ printHogsMemory()
 		if $ram_is_crit || $swap_is_crit ; then
 			local available=$(echo $mem_info | awk '{print $NF}')
 			local procs=$(ps --cols=80 -eo pmem,size,pid,cmd --sort=-%mem |\
-				      head -n 4 | tail -n 3 |\
+				      head -n $(($ram_crit_print_num + 1)) |\
+			              tail -n $ram_crit_print_num |\
 				      awk '{$2=int($2/1024)"MB";}
 				           {printf("%5s%8s%8s\t%s\n", $1, $2, $3, $4)}')
 
@@ -857,6 +800,14 @@ local fc_ok=$(getFormatCode $format_ok)
 local fc_error=$(getFormatCode $format_error)
 local fc_logo=$(getFormatCode $format_logo)
 local fc_none=$(getFormatCode -e reset)
+
+#fc_logo
+#fc_ok
+#fc_crit
+#fc_error
+#fc_none
+local fc_label="$fc_info"
+local fc_text="$fc_highlight"
 
 
 

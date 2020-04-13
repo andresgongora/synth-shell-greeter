@@ -57,7 +57,7 @@ setup()
 
 	## DEFINE LOCAL VARIABLES
 	local dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
-	local input_script="$dir/synth-shell-greeter.sh"
+	local input_script="$dir/synth-shell-greeter/synth-shell-greeter.sh"
 	local input_config_dir="$dir/config/"
 
 

@@ -32,6 +32,17 @@
 
 greeter()
 {
+## INCLUDE EXTERNAL DEPENDENCIES
+include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
+include '../bash-tools/bash-tools/color.sh'
+include '../bash-tools/bash-tools/print_utils.sh'
+include '../config/synth-shell-greeter.config.default'
+include 'info_os.sh'
+include 'info_hardware.sh'
+include 'info_network.sh'
+
+
+
 ##==============================================================================
 ##	INFO AND MONITOR PRINTING HELPERS
 ##==============================================================================
@@ -234,28 +245,23 @@ printMonitor()
 ##	INFO
 ##==============================================================================
 
-include() { source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/$1" ; }
-include 'functions/info_os.sh'
-include 'functions/info_hardware.sh'
-include 'functions/info_network.sh'
-
-printInfoOS() { printInfo "OS" "$(getNameOS)" ; }
-printInfoKernel() { printInfo "Kernel" "$(getNameKernel)" ; }
-printInfoShell() { printInfo "Shell" "$(getNameShell)" ; }
-printInfoDate() { printInfo "Date" "$(getDate)" ; }
-printInfoUptime() { printInfo "Uptime" "$(getUptime)" ; }
-printInfoUser() { printInfo "User" "$(getUserHost)" ; }
-printInfoNumLoggedIn() { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
+printInfoOS()           { printInfo "OS" "$(getNameOS)" ; }
+printInfoKernel()       { printInfo "Kernel" "$(getNameKernel)" ; }
+printInfoShell()        { printInfo "Shell" "$(getNameShell)" ; }
+printInfoDate()         { printInfo "Date" "$(getDate)" ; }
+printInfoUptime()       { printInfo "Uptime" "$(getUptime)" ; }
+printInfoUser()         { printInfo "User" "$(getUserHost)" ; }
+printInfoNumLoggedIn()  { printInfo "Logged in" "$(getNumberLoggedInUsers)" ; }
 printInfoNameLoggedIn() { printInfo "Logged in" "$(getNameLoggedInUsers)" ; }
 
-printInfoCPU() { printInfo "CPU" "$(getNameCPU)" ; }
-printInfoGPU() { printInfo "GPU" "$(getNameGPU)" ; }
-printInfoCPUUtilization() { printInfo "Sys load" "$(getCPUUtilization)" ; }
+printInfoCPU()          { printInfo "CPU" "$(getNameCPU)" ; }
+printInfoGPU()          { printInfo "GPU" "$(getNameGPU)" ; }
+printInfoCPULoad()      { printInfo "Sys load" "$(getCPULoad)" ; }
 
-printInfoLocalIPv4() { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
+printInfoLocalIPv4()    { printInfo "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfo "External IPv4" "$(getExternalIPv4)" ; }
 
-printInfoSpacer() { printInfo "" "" ; }
+printInfoSpacer()       { printInfo "" "" ; }
 
 
 
@@ -595,7 +601,7 @@ printStatusInfo()
 			PALETTE_SMALL)  printInfoColorpaletteSmall;;
 			PALETTE)        printInfoColorpaletteFancy;;
 			SPACER)         printInfoSpacer;;
-			CPUUTILIZATION) printInfoCPUUtilization;;
+			CPULOAD) printInfoCPULoad;;
 			CPUTEMP)        printInfoCPUTemp;;
 
 		## 	USAGE MONITORS (BARS)
@@ -824,11 +830,7 @@ printHogsMemory()
 ##==============================================================================
 
 
-## INCLUDE EXTERNAL DEPENDENCIES
-include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
-include 'bash-tools/bash-tools/color.sh'
-include 'bash-tools/bash-tools/print_utils.sh'
-include 'config/synth-shell-greeter.config.default'
+
 
 
 
@@ -839,7 +841,7 @@ local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
 local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
 if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
 elif [ -f "$user_config_file" ]; then   source "$user_config_file" ;
-elif [ "$USER" == "root" -a -f $root_config_file ]; then source "$root_config_file" ;
+elif [ -f $root_config_file -a "$USER" == "root" ]; then source "$root_config_file" ;
 elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
 else : # Default config already "included" ; 
 fi
@@ -872,7 +874,7 @@ printHogsCPU
 printHogsMemory
 
 
-	
+
 ## PRINT BOTTOM SPACER
 if $print_extra_new_line_bot; then echo ""; fi
 }

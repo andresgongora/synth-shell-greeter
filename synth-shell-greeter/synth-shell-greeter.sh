@@ -178,7 +178,11 @@ printMonitor()
 
 	## PRINT BAR
 	printf "${fc_info}%-${pad}s" "$label"
-	printBar $current $max $bar_length $fc_bar_1 $fc_bar_2 $bar_bracket_char_left $bar_bracket_char_right $bar_fill_char $bar_empty_char 
+	printBar "$current" "$max" "$bar_length" \
+	         "$fc_bar_1$bar_bracket_char_left" \
+	         "$fc_bar_2$bar_fill_char" \
+	         "$fc_bar_2$bar_empty_char" \
+	         "$fc_bar_1$bar_bracket_char_right$fc_none"
 
 
 	## PRINT NUMERIC VALUE

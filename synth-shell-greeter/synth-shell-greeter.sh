@@ -39,236 +39,55 @@ include '../bash-tools/bash-tools/print_utils.sh'
 
 
 
-#######################################################################
-assert_equal()
-{
-	E_PARAM_ERR=98
-	E_ASSERT_FAILED=99
-
-	
-
-	if [ -z "$1" ]; then
-		echo "Assert called in $0 with empty argument"
-		exit $E_PARAM_ERR
-	fi
-
-
-	if [ ! $1 ]; then
-		echo "Assertion failed in $0: \"$1\" . $2"
-		exit $E_ASSERT_FAILED
-	fi  
-}
-#######################################################################
-
 
 ##==============================================================================
-##	INFO AND MONITOR PRINTING HELPERS
+##	CONFIGURATION
 ##==============================================================================
 
 
-
-_getStateColor()
-{
-	local state=$1
-	local E_PARAM_ERR=98
-
-	case $state in
-		nominal)	echo $fc_ok ;;
-		critical)	echo $fc_crit ;;
-		error)		echo $fc_error ;;
-		*)		echo "$state not valid" ; exit $E_ASSERT_FAILED
-	esac
-
-}
-
-
-##==============================================================================
-##	printInfoLine()
-##	Print a formatted message comprised of a label and a value
+## LOAD CONFIGURATION
+## Load default configuration file with all arguments, then try to load any of
+## following in order, until first match, to override some or all config params.
+## 1. Apply specific configuration file if specified as argument.
+## 2. User specific configuration if in user's home folder.
+## 3. If root, apply root configuration file if it exists in the system.
+## 4. System wide configuration file if it exists.
+## 5. Fall back to defaults.
 ##
-##	Arguments:
-##	1. LABEL
-##	2. VALUE
-##
-##	Optional arguments:
-##	3. STATE	Determines the color (nominal/critical/error)
-##
-printInfoLine()
-{
-	local label=$1
-	local value=$2
-	local state=${3:-nominal}
+include '../config/synth-shell-greeter.config.default'
 
-	local fc_label=${fc_info}
-	local fc_value=$(_getStateColor $state)
-	local pad=$info_label_width
+local target_config_file="$1"
+local user_config_file="~/.config/synth-shell/synth-shell-greeter.config"
+local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
+local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
 
-	printf "${fc_label}%-${pad}s${fc_value}${value}${fc_none}\n" "$label"
-}
+if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
+elif [ -f "$user_config_file" ]; then source "$user_config_file" ;
+elif [ -f $root_config_file -a "$USER" == "root" ]; then source "$root_config_file" ;
+elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
+else : # Default config already "included" ; 
+fi
 
 
 
+## COLOR AND TEXT FORMAT CODE
+local fc_info=$(getFormatCode $format_info)
+local fc_highlight=$(getFormatCode $format_highlight)
+local fc_crit=$(getFormatCode $format_crit)
+local fc_deco=$(getFormatCode $format_deco)
+local fc_ok=$(getFormatCode $format_ok)
+local fc_error=$(getFormatCode $format_error)
+local fc_logo=$(getFormatCode $format_logo)
+local fc_none=$(getFormatCode -e reset)
 
+#fc_logo
+#fc_ok
+#fc_crit
+#fc_error
+#fc_none
+local fc_label="$fc_info"
+local fc_text="$fc_highlight"
 
-
-
-##==============================================================================
-##	printFraction()
-##
-##	Prints a color-formatted fraction with padding to reach MAX_DIGITS.
-##
-##	Arguments:
-##	1. NUMERATOR:      first shown number
-##	2. DENOMINATOR:    second shown number
-##	3. PADDING_DIGITS: determines the minimum length of NUMERATOR and
-##	                   DENOMINATOR. If they have less digits than this,
-##	                   then extra spaces are appended for padding.
-##	4. UNITS: a string that is attached to the end of the fraction,
-##	          meant to include optional units (e.g. MB) for display purposes.
-##	          If "none", no units are displayed.
-##
-##	Optional arguments:
-##	5. STATE	Determines the color (nominal/critical/error)
-##
-printFraction()
-{
-	local a=$1
-	local b=$2
-	local padding=$3
-	local units=$4
-	local state=${5:-nominal}
-
-	local deco_color=$fc_info
-	local num_color=$(_getStateColor $state)
-	local units_color=$num_color
-
-	if [ $units == "none" ]; then local units=""; fi
-
-	printf "${num_color}%${padding}s" $a
-	printf "${deco_color}/"
-	printf "${num_color}%-${padding}s" $b
-	printf "${units_color} ${units}${fc_none}"
-}
-
-
-
-
-include '../bash-tools/bash-tools/print_bar.sh'
-printResourceBar()
-{
-	local label=$1
-	local current=$2
-	local max=$3
-	local bar_length=$4
-	local state=${5:-nominal}
-
-
-	## CHOOSE COLORS AND PADDING
-	local fc_label=${fc_info}
-	local pad=$info_label_width
-	local fc_fill_color=$(_getStateColor $state)
-	local fc_bracket_color=$fc_deco
-
-
-	## COMPOSE CHARACTERS FOR BAR
-	local bracket_left=$fc_bracket_color$bar_bracket_char_left
-	local fill=$fc_fill_color$bar_fill_char
-	local background=$fc_none$bar_background_char
-	local bracket_right=$fc_bracket_color$bar_bracket_char_right$fc_none
-
-
-	## PRINT LABEL AND BAR
-	printf "${fc_label}%-${pad}s" "$label"
-	printBar "$current" "$max" "$bar_length" \
-	         "$bracket_left" "$fill" "$background" "$bracket_right"
-}
-
-
-
-
-##==============================================================================
-##	printMonitor()
-##
-##	Prints a resource utilization monitor, comprised of a bar and a fraction.
-##
-##	1. CURRENT: current resource utilization (e.g. occupied GB in HDD)
-##	2. MAX: max resource utilization (e.g. HDD size)
-##	3. CRIT_PERCENT: point at which to warn the user (e.g. 80 for 80%)
-##	4. PRINT_AS_PERCENTAGE: whether to print a simple percentage after
-##	   the utilization bar (true), or to print a fraction (false).
-##	5. UNITS: units of the resource, for display purposes only. This are
-##	   not shown if PRINT_AS_PERCENTAGE=true, but must be set nonetheless.
-##	6. LABEL: A description of the resource that will be printed in front
-##	   of the utilization bar.
-##
-printMonitor()
-{
-	## CHECK EXTERNAL CONFIGURATION
-	if [ -z $bar_num_digits ]; then exit 1; fi
-	if [ -z $fc_deco        ]; then exit 1; fi
-	if [ -z $fc_ok          ]; then exit 1; fi
-	if [ -z $fc_info        ]; then exit 1; fi
-	if [ -z $fc_crit        ]; then exit 1; fi
-
-
-	## VARIABLES
-	local current=$1
-	local max=$2
-	local crit_percent=$3
-	local print_as_percentage=$4
-	local units=$5
-	local label=${@:6}
-	local pad=$info_label_width
-
-
-	## CHECK VARIABLES
-	## If max is empty, assign 0
-	## If crit percent is empty, assign 100
-	## If crit_percent > 100, assign 100
-	if [ -z $max ]; then local max=0; fi
-	if [ -z $crit_percent ]; then local local crit_percent=100; fi
-	if [ "$crit_percent" -gt 100 ]; then local crit_percent=100; fi
-
-
-	## COMPUTE PERCENT
-	## If max=0, then avoid division
-	## Otherwise compute as usual
-	if [ "$max" -eq 0 ]; then
-		local percent=100
-	else
-		local percent=$(bc <<< "$current*100/$max")
-	fi
-
-
-	## SET COLORS DEPENDING ON LOAD
-	local fc_bar_1=$fc_deco
-	local fc_bar_2=$fc_ok
-	local fc_txt_1=$fc_info
-	local fc_txt_2=$fc_ok
-	local fc_txt_3=$fc_ok
-	local state="nominal"
-	if   [ $percent -gt 99 ]; then
-		local fc_bar_2=$fc_error
-		local fc_txt_2=$fc_crit
-		local state="error"
-	elif [ $percent -gt $crit_percent ]; then
-		local fc_bar_2=$fc_crit
-		local fc_txt_2=$fc_crit
-		local state="critical"
-	fi
-
-
-	## PRINT BAR
-	printResourceBar "$label" "$current" "$max" "$bar_length" "$state"
-
-	## PRINT NUMERIC VALUE
-	if $print_as_percentage; then
-		printf "${fc_txt_2}%${bar_num_digits}s${fc_txt_1} %%%%${fc_none}" $percent
-	else
-		printf " "
-		printFraction "$current" "$max" "$bar_num_digits" "$units" "$state"
-	fi
-}
 
 
 
@@ -277,6 +96,8 @@ printMonitor()
 ##==============================================================================
 ##	INFO
 ##==============================================================================
+
+include 'print_info.sh'
 
 include 'info_os.sh'
 printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
@@ -436,7 +257,7 @@ printMonitorCPU()
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
 
-	printMonitor $current $max $bar_cpu_crit_percent \
+	printResourceMonitor $current $max $bar_cpu_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -465,7 +286,7 @@ printMonitorRAM()
 	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
 
 
-	printMonitor $current $max $bar_ram_crit_percent \
+	printResourceMonitor $current $max $bar_ram_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -507,7 +328,7 @@ printMonitorSwap()
 		local max=$(echo "$swap_info" |\
 		            awk '{SWAP=($2)} END {printf SWAP}')
 
-		printMonitor $current $max $bar_swap_crit_percent \
+		printResourceMonitor $current $max $bar_swap_crit_percent \
 		             $as_percentage $units $message
 	fi
 }
@@ -537,7 +358,7 @@ printMonitorHDD()
 	local max=$(df "-B1${option}" / | grep "/" | awk '{key=($2)} END {printf key}')
 
 
-	printMonitor $current $max $bar_hdd_crit_percent \
+	printResourceMonitor $current $max $bar_hdd_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -565,7 +386,7 @@ printMonitorHome()
 	local max=$(df "-B1${option}" ~ | grep "/" | awk '{key=($2)} END {printf key}')
 
 
-	printMonitor $current $max $bar_home_crit_percent \
+	printResourceMonitor $current $max $bar_home_crit_percent \
 	             $as_percentage $units $message
 }
 
@@ -594,7 +415,7 @@ printMonitorCPUTemp()
 
 		
 		## PRINT MONITOR
-		printMonitor $current $max $crit_percent \
+		printResourceMonitor $current $max $crit_percent \
 	        	     false $units "CPU temp"
 	else
 		printInfoLine "CPU temp" "lm-sensors not installed"
@@ -851,56 +672,8 @@ printHogsMemory()
 
 
 ##==============================================================================
-##	MAIN FUNCTION
+##	MAIN
 ##==============================================================================
-
-
-
-
-
-
-## LOAD CONFIGURATION
-## Load default configuration file with all arguments, then try to load any of
-## following in order, until first match, to override some or all config params.
-## 1. Apply specific configuration file if specified as argument.
-## 2. User specific configuration if in user's home folder.
-## 3. If root, apply root configuration file if it exists in the system.
-## 4. System wide configuration file if it exists.
-## 5. Fall back to defaults.
-##
-include '../config/synth-shell-greeter.config.default'
-local target_config_file="$1" # can be empty
-local user_config_file="~/.config/synth-shell/synth-shell-greeter.config"
-local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
-local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
-if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
-elif [ -f "$user_config_file" ]; then source "$user_config_file" ;
-elif [ -f $root_config_file -a "$USER" == "root" ]; then source "$root_config_file" ;
-elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
-else : # Default config already "included" ; 
-fi
-
-
-
-## COLOR AND TEXT FORMAT CODE
-local fc_info=$(getFormatCode $format_info)
-local fc_highlight=$(getFormatCode $format_highlight)
-local fc_crit=$(getFormatCode $format_crit)
-local fc_deco=$(getFormatCode $format_deco)
-local fc_ok=$(getFormatCode $format_ok)
-local fc_error=$(getFormatCode $format_error)
-local fc_logo=$(getFormatCode $format_logo)
-local fc_none=$(getFormatCode -e reset)
-
-#fc_logo
-#fc_ok
-#fc_crit
-#fc_error
-#fc_none
-local fc_label="$fc_info"
-local fc_text="$fc_highlight"
-
-
 
 ## PRINT TOP SPACER
 if $clear_before_print; then clear; fi
@@ -930,5 +703,3 @@ if $print_extra_new_line_bot; then echo ""; fi
 unset greeter
 
 
-
-### EOF ###

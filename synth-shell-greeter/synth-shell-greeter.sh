@@ -178,6 +178,9 @@ printInfoColorpaletteSmall()
 ##
 printInfoColorpaletteFancy()
 {
+	## Line 1:	▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ 
+	## Line 2:	██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ 
+
 	local palette_top=$(printf '%s'\
 		"$(formatText "▄" -c dark-gray)$(formatText "▄" -c dark-gray -b black)$(formatText "█" -c black) "\
 		"$(formatText "▄" -c light-red)$(formatText "▄" -c light-red -b red)$(formatText "█" -c red) "\
@@ -198,8 +201,8 @@ printInfoColorpaletteFancy()
 		"$(formatText "██" -c light-cyan)$(formatText "▀" -c cyan) "\
 		"$(formatText "██" -c white)$(formatText "▀" -c light-gray) ")
 
-	printInfoLine "Color palette" "$palette_top"
-	printInfoLine "" "$palette_bot"
+	printInfoLine "" "$palette_top"
+	printInfoLine "Color palette" "$palette_bot"
 }
 
 
@@ -278,6 +281,9 @@ printResourceMonitor()
 ##
 printMonitorCPU()
 {
+	assert_is_set $bar_cpu_units
+	#assert_is_set $bar_cpu_crit_percent
+
 	local format=$1
 	local label="Sys load avg"
 	local units=""
@@ -294,6 +300,9 @@ printMonitorCPU()
 ##
 printMonitorRAM()
 {
+	assert_is_set $bar_ram_units
+	assert_is_set $bar_ram_crit_percent
+
 	local format=$1
 	local label="Memory"
 
@@ -318,6 +327,9 @@ printMonitorRAM()
 ##
 printMonitorSwap()
 {
+	assert_is_set $bar_swap_units
+	assert_is_set $bar_swap_crit_percent
+
 	local format=$1
 	local label="Swap"
 
@@ -347,7 +359,8 @@ printMonitorSwap()
 }
 
 
-
+##------------------------------------------------------------------------------
+##
 printStorageMonitor()
 {
 	local label=$1
@@ -375,6 +388,9 @@ printStorageMonitor()
 ##
 printMonitorHDD()
 {
+	assert_is_set $bar_hdd_units
+	assert_is_set $bar_hdd_crit_percent
+
 	local format=$1
 	local label="Storage /"	
 	local device="/"
@@ -390,6 +406,9 @@ printMonitorHDD()
 ## 
 printMonitorHome()
 {
+	assert_is_set $bar_home_units
+	assert_is_set $bar_home_crit_percent
+
 	local format=$1
 	local label="Storage /home"	
 	local device=$HOME

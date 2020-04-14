@@ -143,6 +143,7 @@ ram_crit_print_num=3
 
 bar_length=9                    # Number of characters that comprise a bar
 bar_num_digits=5                # Control num digits next to bar
+bar_padding_after=0		# Extra spaces after bar
 info_label_width=16             # Desired length of the info labels
 bar_bracket_char_left='['
 bar_bracket_char_right=']'

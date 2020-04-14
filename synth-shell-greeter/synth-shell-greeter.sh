@@ -139,13 +139,16 @@ printInfoSystemctl()
 
 	if   [ "$systcl_num_failed" -eq "0" ]; then
 		local sysctl="All services OK"
+		local state="nominal"
 	elif [ "$systcl_num_failed" -eq "1" ]; then
-		local sysctl="${fc_error}1 service failed!"
+		local sysctl="1 service failed!"
+		local state="error"
 	else
-		local sysctl="${fc_error}$systcl_num_failed services failed!"
+		local sysctl="$systcl_num_failed services failed!"
+		local state="error"
 	fi
 
-	printInfoLine "Services" "$sysctl"
+	printInfoLine "Services" "$sysctl" "$state"
 }
 
 
@@ -222,18 +225,19 @@ printInfoCPUTemp()
 		            sed -n 's/^.*crit = +\(.*\)°[[CF]]*[ \t]*.*/\1/p')
 
 
-		## COMPOSE MESSAGE
+		## DETERMINE STATE
 		if   (( $(echo "$current < $high" |bc -l) )); then 
-			local temp="$current$units";
+			local state="nominal"
 		elif (( $(echo "$current < $max" |bc -l) )); then 
-			local temp="$fc_crit$current$units";
+			local state="critical";
 		else                             
-			local temp="$fc_error$current$units";
+			local state="error";
 		fi
 
 		
 		## PRINT MESSAGE
-		printInfoLine "CPU temp" "$temp"
+		local temp="$current$units"
+		printInfoLine "CPU temp" "$temp" "$state"
 	else
 		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
@@ -243,22 +247,45 @@ printInfoCPUTemp()
 
 
 
+printResourceMonitor()
+{
+	local label=$1
+	local value=$2
+	local max=$3
+	local units=$4
+	local format=$5
+	local crit_percent=$6	
+	local error_percent=${7:-99}
+
+
+	## CHECK STATE
+	local percent=$('bc' <<< "$value*100/$max")
+	local state="nominal"
+	if   [ $percent -gt $error_percent ]; then
+		local state="error"
+	elif [ $percent -gt $crit_percent ]; then
+		local state="critical"
+	fi
+
+
+	printInfoMonitor "$label" "$current_value" "$max" "$units" "$format" "$state"
+}
+
+
+
+
 ##------------------------------------------------------------------------------
 ##
 printMonitorCPU()
 {
-	local message="Sys load avg"
-	local units="none"
-	local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
+	local format=$1
+	local label="Sys load avg"
+	local units=""
+	local current_value=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
 	local max=$(nproc --all)
+	local crit_percent=$bar_cpu_crit_percent
 
-
-	local as_percentage=$1
-	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
-
-
-	printResourceMonitor $current $max $bar_cpu_crit_percent \
-	             $as_percentage $units $message
+	printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" "$crit_percent"
 }
 
 
@@ -267,7 +294,9 @@ printMonitorCPU()
 ##
 printMonitorRAM()
 {
-	## CHOOSE UNITS
+	local format=$1
+	local label="Memory"
+
 	case "$bar_ram_units" in
 		"MB")		local units="MB"; local option="--mega" ;;
 		"TB")		local units="TB"; local option="--tera" ;;
@@ -275,19 +304,12 @@ printMonitorRAM()
 		*)		local units="GB"; local option="--giga" ;;
 	esac
 
-
-	local message="Memory"
 	local mem_info=$('free' "$option" | head -n 2 | tail -n 1)
-	local current=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
+	local current_value=$(echo "$mem_info" | awk '{mem=($2-$7)} END {printf mem}')
 	local max=$(echo "$mem_info" | awk '{mem=($2)} END {printf mem}')
+	local crit_percent=$bar_ram_crit_percent
 
-
-	local as_percentage=$1
-	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
-
-
-	printResourceMonitor $current $max $bar_ram_crit_percent \
-	             $as_percentage $units $message
+	printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" "$crit_percent"
 }
 
 
@@ -296,70 +318,70 @@ printMonitorRAM()
 ##
 printMonitorSwap()
 {
-	## CHOOSE UNITS
+	local format=$1
+	local label="Swap"
+
 	case "$bar_swap_units" in
-		"MB")		local units="MB"; local option="--mebi" ;;
-		"TB")		local units="TB"; local option="--tebi" ;;
-		"PB")		local units="PB"; local option="--pebi" ;;
-		*)		local units="GB"; local option="--gibi" ;;
+		"MB")		local units="MB"; local option="--mega" ;;
+		"TB")		local units="TB"; local option="--tera" ;;
+		"PB")		local units="PB"; local option="--peta" ;;
+		*)		local units="GB"; local option="--giga" ;;
 	esac
-
-
-	local message="Swap"
-	local as_percentage=$1
-	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
-
 
 	## CHECK IF SYSTEM HAS SWAP
 	## Count number of lines in /proc/swaps, excluding the header (-1)
 	## This is not fool-proof, but if num_swap_devs>=1, there should be swap
 	local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))
 	
-	if [ "$num_swap_devs" -lt 1 ]; then ## NO SWAP
-		
-
-		local pad=${info_label_width}
-		printf "${fc_info}%-${pad}s${fc_highlight}N/A${fc_none}" "${message}"
+	if [ "$num_swap_devs" -lt 1 ]; then
+		printInfoLine "$label" "N/A"
 	
-	else ## HAS SWAP	
+	else
 		local swap_info=$('free' "$option" | tail -n 1)
-		local current=$(echo "$swap_info" |\
-		                awk '{SWAP=($3)} END {printf SWAP}')
-		local max=$(echo "$swap_info" |\
-		            awk '{SWAP=($2)} END {printf SWAP}')
+		local current_value=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
+		local max=$(echo "$swap_info" | awk '{SWAP=($2)} END {printf SWAP}')
+		local crit_percent=$bar_swap_crit_percent
 
-		printResourceMonitor $current $max $bar_swap_crit_percent \
-		             $as_percentage $units $message
+		printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" "$crit_percent"
 	fi
 }
 
 
 
-##------------------------------------------------------------------------------
-##
-printMonitorHDD()
+printStorageMonitor()
 {
-	local as_percentage=$1
-	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
+	local label=$1
+	local device=$2
+	local units=$3
+	local format=$4
+	local crit_percent=$5	
+	local error_percent=${6:-99}
 
-
-	## CHOOSE UNITS
-	case "$bar_hdd_units" in
+	case "$units" in
 		"MB")		local units="MB"; local option="M" ;;
 		"TB")		local units="TB"; local option="T" ;;
 		"PB")		local units="PB"; local option="P" ;;
 		*)		local units="GB"; local option="G" ;;
 	esac
 
+	local current_value=$(df "-B1${option}" "${device}" | grep / | awk '{key=($3)} END {printf key}')
+	local max=$(df "-B1${option}" "${device}" | grep / | awk '{key=($2)} END {printf key}')
+	printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" "$crit_percent" "$error_percent"
 
-	local message="Storage /"
-	local units="GB"
-	local current=$(df "-B1${option}" / | grep "/" |awk '{key=($3)} END {printf key}')
-	local max=$(df "-B1${option}" / | grep "/" | awk '{key=($2)} END {printf key}')
+}
 
 
-	printResourceMonitor $current $max $bar_hdd_crit_percent \
-	             $as_percentage $units $message
+##------------------------------------------------------------------------------
+##
+printMonitorHDD()
+{
+	local format=$1
+	local label="Storage /"	
+	local device="/"
+	local units=$bar_hdd_units
+	local crit_percent=$bar_hdd_crit_percent
+
+	printStorageMonitor "$label" "$device" "$units" "$format" "$crit_percent"
 }
 
 
@@ -368,26 +390,13 @@ printMonitorHDD()
 ## 
 printMonitorHome()
 {
-	local as_percentage=$1
-	if [ -z "$as_percentage" ]; then local as_percentage=false; fi
+	local format=$1
+	local label="Storage /home"	
+	local device=$HOME
+	local units=$bar_home_units
+	local crit_percent=$bar_home_crit_percent
 
-	
-	## CHOOSE UNITS
-	case "$bar_home_units" in
-		"MB")		local units="MB"; local option="M" ;;
-		"TB")		local units="TB"; local option="T" ;;
-		"PB")		local units="PB"; local option="P" ;;
-		*)		local units="GB"; local option="G" ;;
-	esac
-
-
-	local message="Storage /home"
-	local current=$(df "-B1${option}" ~ | grep "/" |awk '{key=($3)} END {printf key}')
-	local max=$(df "-B1${option}" ~ | grep "/" | awk '{key=($2)} END {printf key}')
-
-
-	printResourceMonitor $current $max $bar_home_crit_percent \
-	             $as_percentage $units $message
+	printStorageMonitor "$label" "$device" "$units" "$format" "$crit_percent"
 }
 
 
@@ -463,16 +472,16 @@ printStatusInfo()
 
 		## 	USAGE MONITORS (BARS)
 		##	NAME            FUNCTION               AS %
-			SYSLOAD_MON)    printMonitorCPU;;
-			SYSLOAD_MON%)   printMonitorCPU        true;;
-			MEMORY_MON)     printMonitorRAM;;
-			MEMORY_MON%)    printMonitorRAM        true;;
-			SWAP_MON)       printMonitorSwap;;
-			SWAP_MON%)      printMonitorSwap       true;;
-			HDDROOT_MON)    printMonitorHDD;;
-			HDDROOT_MON%)   printMonitorHDD        true;;
-			HDDHOME_MON)    printMonitorHome;;
-			HDDHOME_MON%)   printMonitorHome       true;;
+			SYSLOAD_MON)    printMonitorCPU        'a/b';;
+			SYSLOAD_MON%)   printMonitorCPU        '0/0';;
+			MEMORY_MON)     printMonitorRAM        'a/b';;
+			MEMORY_MON%)    printMonitorRAM        '0/0';;
+			SWAP_MON)       printMonitorSwap       'a/b';;
+			SWAP_MON%)      printMonitorSwap       '0/0';;
+			HDDROOT_MON)    printMonitorHDD        'a/b';;
+			HDDROOT_MON%)   printMonitorHDD        '0/0';;
+			HDDHOME_MON)    printMonitorHome       'a/b';;
+			HDDHOME_MON%)   printMonitorHome       '0/0';;
 			CPUTEMP_MON)    printMonitorCPUTemp;;
 
 			*)              printInfoLine "Unknown" "Check your config";;

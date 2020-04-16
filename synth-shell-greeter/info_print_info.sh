@@ -32,7 +32,7 @@
 ##	DEPENDENCIES
 ##==============================================================================
 
-include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
+include(){ [ -z "$_IR" ]&&_IR="$PWD"&&cd $( dirname "$PWD/$0" )&&. "$1"&&cd "$_IR"&&unset _IR||. $1;}
 include '../bash-tools/bash-tools/print_bar.sh'
 include '../bash-tools/bash-tools/assert.sh'
 

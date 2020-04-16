@@ -28,7 +28,7 @@
 
 ##==============================================================================
 ##
-include(){ local d=$PWD; cd "$(dirname $PWD/$1 )"; . "$(basename $1)"; cd "$d";}
+include(){ [ -z "$_IR" ]&&_IR="$PWD"&&cd $( dirname "$PWD/$0" )&&. "$1"&&cd "$_IR"&&unset _IR||. $1;}
 include 'bash-tools/bash-tools/user_io.sh'
 include 'bash-tools/bash-tools/hook_script.sh'
 include 'bash-tools/bash-tools/assemble_script.sh'
@@ -38,7 +38,8 @@ include 'bash-tools/bash-tools/assemble_script.sh'
 if [ "$#" -eq 0 ]; then
 	OUTPUT_SCRIPT="$HOME/.config/synth-shell/synth-shell-greeter.sh"
 	OUTPUT_CONFIG_DIR="$HOME/.config/synth-shell"
-	cp "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config" "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config.backup"
+	cp "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config" \
+		 "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config.backup"
 	printInfo "Installing script as $OUTPUT_SCRIPT"
 	USER_CHOICE=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
 	case "$USER_CHOICE" in

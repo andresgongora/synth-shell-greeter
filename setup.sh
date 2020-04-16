@@ -30,11 +30,11 @@
 ##
 setup()
 {
-	include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
+
+
+	include(){ local d=$PWD; cd "$(dirname $PWD/$1 )"; . "$(basename $1)"; cd "$d";}
 	include 'bash-tools/bash-tools/user_io.sh'
-	include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 	include 'bash-tools/bash-tools/hook_script.sh'
-	include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
 	include 'bash-tools/bash-tools/assemble_script.sh'
 
 
@@ -44,7 +44,8 @@ setup()
 		local output_config_dir="$HOME/.config/synth-shell"
 		cp "$output_config_dir/synth-shell-greeter.config" "$output_config_dir/synth-shell-greeter.config.backup"
 		printInfo "Installing script as $output_script"
-		local action=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
+		#local action=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
+		local action='y'
 		case "$action" in
 			""|y|Y )	hookScript $output_script ;;
 			n|N )		;;

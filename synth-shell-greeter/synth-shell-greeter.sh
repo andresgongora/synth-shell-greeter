@@ -29,13 +29,16 @@
 ##
 
 
+## INCLUDE EXTERNAL DEPENDENCIES
+include(){ local d=$PWD; cd "$(dirname $PWD/$1 )"; . "$(basename $1)"; cd "$d";}
+include '../bash-tools/bash-tools/color.sh'
+include '../bash-tools/bash-tools/print_utils.sh'
+include '../config/synth-shell-greeter.config.default'
+
 
 greeter()
 {
-## INCLUDE EXTERNAL DEPENDENCIES
-include() { source "$( cd $( dirname "${BASH_SOURCE[0]}" ) >/dev/null 2>&1 && pwd )/$1" ; }
-include '../bash-tools/bash-tools/color.sh'
-include '../bash-tools/bash-tools/print_utils.sh'
+
 
 
 
@@ -54,7 +57,7 @@ include '../bash-tools/bash-tools/print_utils.sh'
 ## 4. System wide configuration file if it exists.
 ## 5. Fall back to defaults.
 ##
-include '../config/synth-shell-greeter.config.default'
+
 
 local target_config_file="$1"
 local user_config_file="~/.config/synth-shell/synth-shell-greeter.config"
@@ -281,8 +284,7 @@ printResourceMonitor()
 ##
 printMonitorCPU()
 {
-	assert_is_set $bar_cpu_units
-	#assert_is_set $bar_cpu_crit_percent
+	assert_is_set $bar_cpu_crit_percent
 
 	local format=$1
 	local label="Sys load avg"

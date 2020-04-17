@@ -92,7 +92,7 @@ cp -r "$INPUT_CONFIG_DIR/." "$OUTPUT_CONFIG_DIR/"
 ## SETUP DEFAULT SYNTH-SHELL-GREETER CONFIG FILE
 CONFIG_FILE="$OUTPUT_CONFIG_DIR/synth-shell-greeter.config"
 if [ ! -f  "$CONFIG_FILE" ]; then
-	local DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)		
+	DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)		
 	case "$DISTRO" in
 		'arch' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
 		'manjaro' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;

@@ -28,7 +28,8 @@
 
 ##==============================================================================
 ##
-include(){ [ -z "$_IR" ]&&_IR="$PWD"&&cd $( dirname "$PWD/$0" )&&. "$1"&&cd "$_IR"&&unset _IR||. $1;}
+include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "$PWD/$0")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};}
+
 include 'bash-tools/bash-tools/user_io.sh'
 include 'bash-tools/bash-tools/hook_script.sh'
 include 'bash-tools/bash-tools/assemble_script.sh'
@@ -57,7 +58,7 @@ fi
 ## DEFINE LOCAL VARIABLES
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 INPUT_SCRIPT="$DIR/synth-shell-greeter/synth-shell-greeter.sh"
-INPUT_CONFIG_DIR="$DIR/config"
+INPUT_CONFIG_DIR="$DIR/config/"
 
 
 ## HEADER TO BE ADDED AT THE TOP OF THE ASSEMBLED SCRIPT

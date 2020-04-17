@@ -31,7 +31,8 @@
 
 
 ## INCLUDE EXTERNAL DEPENDENCIES
-include(){ [ -z "$_IR" ]&&_IR="$PWD"&&cd $( dirname "$PWD/$0" )&&. "$1"&&cd "$_IR"&&unset _IR||. $1;}
+include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "$PWD/$0")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};}
+
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
 include 'info.sh'
@@ -96,23 +97,6 @@ local fc_text="$fc_highlight"
 ##==============================================================================
 ##	INFO
 ##==============================================================================
-
-
-
-
-
-
-
-
-##==============================================================================
-##	
-##==============================================================================
-
-
-
-
-
-
 
 
 

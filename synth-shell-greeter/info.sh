@@ -44,7 +44,7 @@ include 'info_print_info.sh'
 ##	ONE LINERS
 ##==============================================================================
 
-include 'info_os.sh'
+include 'info_about_os.sh'
 printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
 printInfoKernel()       { printInfoLine "Kernel" "$(getNameKernel)" ; }
 printInfoShell()        { printInfoLine "Shell" "$(getNameShell)" ; }
@@ -54,16 +54,65 @@ printInfoUser()         { printInfoLine "User" "$(getUserHost)" ; }
 printInfoNumLoggedIn()  { printInfoLine "Logged in" "$(getNumberLoggedInUsers)" ; }
 printInfoNameLoggedIn() { printInfoLine "Logged in" "$(getNameLoggedInUsers)" ; }
 
-include 'info_hardware.sh'
+include 'info_about_hardware.sh'
 printInfoCPU()          { printInfoLine "CPU" "$(getNameCPU)" ; }
-printInfoGPU()          { printInfoLine "GPU" "$(getNameGPU)" ; }
 printInfoCPULoad()      { printInfoLine "Sys load" "$(getCPULoad)" ; }
 
-include 'info_network.sh'
+include 'info_about_network.sh'
 printInfoLocalIPv4()    { printInfoLine "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfoLine "External IPv4" "$(getExternalIPv4)" ; }
 
 printInfoSpacer()       { printInfoLine "" "" ; }
+
+
+
+
+
+
+
+
+##==============================================================================
+##
+##==============================================================================
+
+printInfoGPU()
+{
+	# DETECT GPU(s)set	
+	local gpu_ids=($(lspci 2>/dev/null | grep ' VGA ' | cut -d" " -f 1))
+
+	# FOR ALL DETECTED IDs
+	# Get the GPU name, but trim all buzzwords away
+	for id in "${gpu_ids[@]}"; do
+		local gpu=$(lspci -v -s "$id" 2>/dev/null |\
+		            head -n 1 |\
+		            sed 's/^.*: //g;s/(.*$//g;
+		                 s/Generation Core Processor Family Integrated Graphics Controller /gen IGC/g;
+		                 s/Corporation//g;
+		                 s/Core Processor//g;
+		                 s/Series//g;
+		                 s/Chipset//g;
+		                 s/Graphics//g;
+		                 s/processor//g;
+		                 s/Controller//g;
+		                 s/Family//g;
+		                 s/Inc.//g;
+		                 s/,//g;
+		                 s/Technology//g;
+		                 s/Mobility/M/g;
+		                 s/Advanced Micro Devices/AMD/g;
+		                 s/\[AMD\/ATI\]/ATI/g;
+		                 s/Integrated Graphics Controller/HD Graphics/g;
+		                 s/Integrated Controller/IC/g;
+		                 s/  */ /g'
+		           )
+		# If GPU name still to long, remove anything between []
+		if [ "${#gpu}" -gt 30 ]; then
+			local gpu=$(printf "$gpu" | sed 's/\[.*\]//g' )
+		fi
+
+		printInfoLine "GPU" "$gpu"
+	done
+}
 
 
 

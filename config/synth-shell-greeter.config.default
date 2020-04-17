@@ -117,31 +117,38 @@ format_logo="           -c blue         -e bold"
 ##==============================================================================
 ## STATUS BARS
 ##
-## This option controls the behaviour of the visual status bars that are plotted
-## for CPU, Memory, Swap and HDD usage. You can set the percentage that
+## These option controls the behaviour of the visual status bars that are
+## plotted for CPU, Memory, Swap and HDD usage. You can set the percentage that
 ## determines when the current usage is deemed critical. If said percentage
 ## is surpassed, the color of the bars will change and extra information
 ## might be plotted in addition (e.g. if the CPU usage is too high, the most
 ## demanding processes are printed to terminal).
 ##==============================================================================
 
-crit_cpu_percent=40
-print_cpu_hogs_num=3            # Num processes to show if CPU usage is high
-crit_ram_percent=75
-print_memory_hogs=3             # Num processes to show if memory usage is high
-crit_swap_percent=25
-crit_hdd_percent=85
-crit_home_percent=85
+bar_cpu_crit_percent=40
+bar_ram_crit_percent=75
+bar_swap_crit_percent=25
+bar_hdd_crit_percent=85
+bar_home_crit_percent=85
 
-memory_units="MB"
-swap_units="MB"
-hdd_units="GB"
-home_units="GB"
+bar_ram_units="MB"
+bar_swap_units="MB"
+bar_hdd_units="GB"
+bar_home_units="GB"
+
+cpu_crit_print=true
+cpu_crit_print_num=3
+ram_crit_print=true
+ram_crit_print_num=3
 
 bar_length=9                    # Number of characters that comprise a bar
 bar_num_digits=5                # Control num digits next to bar
+bar_padding_after=0		# Extra spaces after bar
 info_label_width=16             # Desired length of the info labels
-
+bar_bracket_char_left='['
+bar_bracket_char_right=']'
+bar_fill_char='|'
+bar_background_char=' '
 
 
 ##==============================================================================
@@ -156,5 +163,6 @@ date_format="%Y.%m.%d - %T"     # see 'man date'
 clear_before_print=false        # Dangerous if true, some messages might be lost
 print_extra_new_line_top=true   # Extra line before logo and info
 print_extra_new_line_bot=true   # Extra line after logo and info
+
 
 

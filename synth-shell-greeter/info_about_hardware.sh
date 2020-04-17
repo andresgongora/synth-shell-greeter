@@ -60,46 +60,7 @@ getNameCPU()
 
 ##==============================================================================
 ##
-getNameGPU()
-{
-	## DETECT GPU(s)set	
-	local gpu_id=$(lspci 2>/dev/null | grep ' VGA ' | cut -d" " -f 1)
 
-	## FOR ALL DETECTED IDs
-	## Get the GPU name, but trim all buzzwords away
-	echo -e "$gpu_id" | while read line ; do
-	   	local gpu=$(lspci -v -s "$line" 2>/dev/null |\
-		            head -n 1 |\
-		            sed 's/^.*: //g;s/(.*$//g;
-		                 s/Corporation//g;
-		                 s/Core Processor//g;
-		                 s/Series//g;
-		                 s/Chipset//g;
-		                 s/Graphics//g;
-		                 s/processor//g;
-		                 s/Controller//g;
-		                 s/Family//g;
-		                 s/Inc.//g;
-		                 s/,//g;
-		                 s/Technology//g;
-		                 s/Mobility/M/g;
-		                 s/Advanced Micro Devices/AMD/g;
-		                 s/\[AMD\/ATI\]/ATI/g;
-		                 s/Integrated Graphics Controller/HD Graphics/g;
-		                 s/Integrated Controller/IC/g;
-		                 s/Generation Integrated/Gen IC/g;
-		                 s/  */ /g'
-		           )
-
-		## If GPU name still to long, remove anything between []
-		if [ "${#gpu}" -gt 30 ]; then
-			local gpu=$(echo "$gpu" | sed 's/\[.*\]//g' )
-		fi
-
-
-		printf "$gpu"
-	done
-}
 
 
 

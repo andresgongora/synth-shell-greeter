@@ -32,6 +32,10 @@ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "$PWD/$0")"&&include "$1"&
 
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
+include '../bash-tools/bash-tools/assert.sh'
+
+
+
 
 
 
@@ -39,6 +43,9 @@ include '../bash-tools/bash-tools/print_utils.sh'
 ##
 reportLastLogins()
 {
+	assert_is_set ${fc_highlight}
+	assert_is_set ${fc_info}
+
 	## DO NOTHING FOR NOW -> This is disabled intentionally for now.
 	## Printing logins should only be done under special circumstances:
 	## 1. User configurable set to always on
@@ -56,6 +63,11 @@ reportLastLogins()
 ##
 reportSystemctl()
 {
+	assert_is_set ${fc_highlight}
+	assert_is_set ${fc_info}
+	assert_is_set ${fc_crit}
+	assert_is_set ${fc_none}
+
 	systcl_num_failed=$(systemctl --failed |\
 	                    grep "loaded units listed" |\
 	                    head -c 1)
@@ -74,7 +86,15 @@ reportSystemctl()
 ##
 reportHogsCPU()
 {
+	assert_is_set ${cpu_crit_print}
+	assert_is_set ${bar_cpu_crit_percent}
+	assert_is_set ${fc_highlight}
+	assert_is_set ${fc_info}
+	assert_is_set ${fc_crit}
+	assert_is_set ${fc_none}
+
 	export LC_NUMERIC="C"
+
 
 	## EXIT IF NOT ENABLED
 	if [ "$cpu_crit_print"==true ]; then
@@ -122,6 +142,14 @@ reportHogsCPU()
 ##
 reportHogsMemory()
 {
+	assert_is_set ${ram_crit_print}
+	assert_is_set ${bar_ram_crit_percent}
+	assert_is_set ${fc_highlight}
+	assert_is_set ${fc_info}
+	assert_is_set ${fc_crit}
+	assert_is_set ${fc_none}
+
+
 	## EXIT IF NOT ENABLED
 	if [ "$ram_crit_print"==true ]; then
 		## CHECK RAM

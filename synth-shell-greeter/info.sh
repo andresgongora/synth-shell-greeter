@@ -34,9 +34,9 @@
 
 include(){ [ -z "$_IR" ]&&_IR="$PWD"&&cd $( dirname "$PWD/$0" )&&. "$1"&&cd "$_IR"&&unset _IR||. $1;}
 include 'info_print_info.sh'
-
-
-
+include 'info_about_os.sh'
+include 'info_about_hardware.sh'
+include 'info_about_network.sh'
 
 
 
@@ -44,7 +44,7 @@ include 'info_print_info.sh'
 ##	ONE LINERS
 ##==============================================================================
 
-include 'info_about_os.sh'
+
 printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
 printInfoKernel()       { printInfoLine "Kernel" "$(getNameKernel)" ; }
 printInfoShell()        { printInfoLine "Shell" "$(getNameShell)" ; }
@@ -54,16 +54,13 @@ printInfoUser()         { printInfoLine "User" "$(getUserHost)" ; }
 printInfoNumLoggedIn()  { printInfoLine "Logged in" "$(getNumberLoggedInUsers)" ; }
 printInfoNameLoggedIn() { printInfoLine "Logged in" "$(getNameLoggedInUsers)" ; }
 
-include 'info_about_hardware.sh'
 printInfoCPU()          { printInfoLine "CPU" "$(getNameCPU)" ; }
 printInfoCPULoad()      { printInfoLine "Sys load" "$(getCPULoad)" ; }
 
-include 'info_about_network.sh'
 printInfoLocalIPv4()    { printInfoLine "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfoLine "External IPv4" "$(getExternalIPv4)" ; }
 
 printInfoSpacer()       { printInfoLine "" "" ; }
-
 
 
 

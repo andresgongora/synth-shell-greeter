@@ -349,17 +349,17 @@ printHogsMemory()
 ##==============================================================================
 
 ## PRINT TOP SPACER
-#if $clear_before_print; then clear; fi
+if $clear_before_print; then clear; fi
 if $print_extra_new_line_top; then echo ""; fi
 
 
 
 ## PRINT GREETER ELEMENTS
 printHeader
-#printLastLogins
-#printSystemctl
-#printHogsCPU
-#printHogsMemory
+printLastLogins
+printSystemctl
+printHogsCPU
+printHogsMemory
 
 
 

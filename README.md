@@ -1,7 +1,7 @@
 ![synth-shell](doc/synth-shell-status.jpg)
 
 
-**synth-shell-status** shows a summary of your system's current health.
+**synth-shell-greeter** shows a summary of your system's current health.
 - Automatically printed in new terminal sessions (local, SSH, ...).
 - Monitor your servers, RaspberryPis, and workstations. All system info you
     need at a glance (e.g. external IP address, CPU temperature, etc.).
@@ -18,36 +18,33 @@
 #                                     Setup
 <!--------------------------------------+-------------------------------------->
 
-### Automatic setup
+
+### Arch Linux
+
+You may install `synth-shell-greeter` from AUR: 
+https://aur.archlinux.org/packages/synth-shell-greeter-git/
+
+
+
+### Manual setup
 
 The included [setup script](setup.sh) will guide you step by step through the
-process and let you choose what features to install. During this setup, you can
-choose to install synth-shell for your user only (recommended) or system-wide
-(superuser privileges required). To proceed,
-[open and play this link in a separate tab](https://www.youtube.com/embed/MpN91wHAr1k)
-and enter the following into your terminal:
+installatioj process. Just clone this repository and run it:
 ```
-git clone --recursive https://github.com/andresgongora/synth-shell.git
-chmod +x synth-shell/setup.sh
-synth-shell/setup.sh
+git clone --recursive https://github.com/andresgongora/synth-shell-greeter.git
+synth-shell-greeter/setup.sh
 ```
 
-Note that for `fancy-bash-prompt.sh` you might also need
-[power-line fonts](https://github.com/powerline/fonts). You can instal it
-as follows (the exact name of the package varies from distro to distro):
+You can then test your script by running it from wherever you installed it.
+Usually this is to your user's `.config` folder, so you should run:
+```
+~/.config/synth-shell/synth-shell-greeter.sh
+```
 
-* ArchLinux: `sudo pacman -S powerline-fonts`
-* Debian/Ubuntu: `sudo apt install fonts-powerline`
-
-Finally, open up a new terminal and test that everything works. Sometimes,
-despite power-line fonts being properly installed, the triangle separator 
-for `fancy-bash-prompt.sh` (if installed) might still not show. In this case, 
-make sure that your `locale` is set to UTF-8 by editing `/etc/locale.conf` file 
-(select your language but in UTF-8 format) and running `sudo locale-gen`.
-[More info on locale](https://wiki.archlinux.org/index.php/locale).
-Alternatively, try a different font in your terminal emulator. Some fonts
-do not support special characters. We get the best results with
-[hack-ttf](https://sourcefoundry.org/hack/).
+If you want it to appear everytime you open a new terminal, run
+```
+echo "~/.config/synth-shell/synth-shell-greeter.sh" >> ~/.bashrc
+```
 
 
 
@@ -59,11 +56,6 @@ folders depending on how you installed **synth-shell**:
 * Current-user only: `~/.config/synth-shell/`
 * System wide: `/etc/synth-shell/`
 
-
-
-### Uninstallation
-Run the setup script again (like during the installation), but choose 
-`uninstall` when prompted.
 
 
 
@@ -83,9 +75,10 @@ prints a user-configurable ASCII logo to impress your crush from the library
 with how awesome you are.
 
 Feel free to customize your status report through the many available options
-in `~/.config/synth-shell/status.config` (user-only install) or
-`/etc/synth-shell/status.config` (system-wide install),or by replacing their
-content with the examples files you can find under the same directory.
+in `~/.config/synth-shell/synth-shell-greeter.config` (user-only install) or
+`/etc/synth-shell/synth-shell-greeter.config` (system-wide install), or by 
+replacing their content with the examples files you can find under the same 
+directory.
 
 ![status configuration options](doc/status_config_preview.png)
 

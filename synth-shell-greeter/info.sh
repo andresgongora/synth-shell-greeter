@@ -47,7 +47,6 @@ include 'info_about_network.sh'
 ##	ONE LINERS
 ##==============================================================================
 
-
 printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
 printInfoKernel()       { printInfoLine "Kernel" "$(getNameKernel)" ; }
 printInfoShell()        { printInfoLine "Shell" "$(getNameShell)" ; }

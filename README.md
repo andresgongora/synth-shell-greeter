@@ -1,4 +1,4 @@
-![synth-shell](doc/synth-shell-status.jpg)
+![synth-shell-greeter](doc/synth-shell-greeter.jpg)
 
 
 **synth-shell-greeter** shows a summary of your system's current health.
@@ -67,8 +67,8 @@ folders depending on how you installed **synth-shell**:
 #                                    Overview
 <!--------------------------------------+-------------------------------------->
 
-`status.sh` provides a summarized system report at a single glance every time
-you open up a new terminal. If it detects that any system parameter
+`synth-shell-greeter` provides a summarized system report at a single glance
+every time you open up a new terminal. If it detects that any system parameter
 (e.g. CPU load, memory, etc.) is over a critical threshold, it will provide a
 warning and additional information about the cause. Last but not least, it
 prints a user-configurable ASCII logo to impress your crush from the library
@@ -80,7 +80,7 @@ in `~/.config/synth-shell/synth-shell-greeter.config` (user-only install) or
 replacing their content with the examples files you can find under the same 
 directory.
 
-![status configuration options](doc/status_config_preview.png)
+![greeter configuration options](doc/status_config_preview.png)
 
 
 
@@ -140,7 +140,7 @@ There are two branches in this repository:
 #                                     About
 <!--------------------------------------+-------------------------------------->
 
-**synth-shell-status** is part of
+**synth-shell-greeter** is part of
 [synth-shell](https://github.com/andresgongora/synth-shell)
 
 

@@ -104,12 +104,12 @@ print_info="
 ##
 ##==============================================================================
 
-format_info="           -c white"
+format_info="           -c light-gray          "
 format_highlight="      -c blue         -e bold"
-format_crit="           -c 208          -e bold"
-format_deco="           -c white        -e bold"
+format_crit="           -c 45           -e bold"
+format_deco="           -c light-gray          "
 format_ok="             -c blue         -e bold"
-format_error="          -c 208          -e bold -e blink"
+format_error="          -c 45           -e bold -e blink"
 format_logo="           -c blue         -e bold"
 
 

@@ -29,18 +29,16 @@
 ##==============================================================================
 ##
 include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "$PWD/$0")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};}
-
 include 'bash-tools/bash-tools/user_io.sh'
 include 'bash-tools/bash-tools/hook_script.sh'
 include 'bash-tools/bash-tools/assemble_script.sh'
+
 
 
 ## SWITCH BETWEEN AUTOMATIC AND USER INSTALLATION
 if [ "$#" -eq 0 ]; then
 	OUTPUT_SCRIPT="$HOME/.config/synth-shell/synth-shell-greeter.sh"
 	OUTPUT_CONFIG_DIR="$HOME/.config/synth-shell"
-	cp "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config" \
-		 "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config.backup"
 	printInfo "Installing script as $OUTPUT_SCRIPT"
 	USER_CHOICE=$(promptUser "Add hook your .bashrc file or equivalent?\n\tRequired for autostart on new terminals" "[Y]/[n]?" "yYnN" "y")
 	case "$USER_CHOICE" in
@@ -55,10 +53,12 @@ else
 fi
 
 
+
 ## DEFINE LOCAL VARIABLES
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 INPUT_SCRIPT="$DIR/synth-shell-greeter/synth-shell-greeter.sh"
 INPUT_CONFIG_DIR="$DIR/config/"
+
 
 
 ## HEADER TO BE ADDED AT THE TOP OF THE ASSEMBLED SCRIPT
@@ -80,8 +80,10 @@ OUTPUT_SCRIPT_HEADER=$(printf '%s'\
 	"##\n\n\n")
 
 
+
 ## SETUP SCRIPT
 assembleScript "$INPUT_SCRIPT" "$OUTPUT_SCRIPT" "$OUTPUT_SCRIPT_HEADER"
+
 
 
 ## SETUP CONFIGURATION FILES
@@ -89,13 +91,18 @@ assembleScript "$INPUT_SCRIPT" "$OUTPUT_SCRIPT" "$OUTPUT_SCRIPT_HEADER"
 cp -r "$INPUT_CONFIG_DIR/." "$OUTPUT_CONFIG_DIR/"
 
 
+
 ## SETUP DEFAULT SYNTH-SHELL-GREETER CONFIG FILE
+## If file exists, store to .new instead
+## Choose depending on distro, fallback to default
 CONFIG_FILE="$OUTPUT_CONFIG_DIR/synth-shell-greeter.config"
-if [ ! -f  "$CONFIG_FILE" ]; then
-	DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)		
-	case "$DISTRO" in
-		'arch' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
-		'manjaro' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;
-		*)		cp "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
-	esac
+if [ -f "$CONFIG_FILE" ]; then
+	CONFIG_FILE="${CONFIG_FILE}.new"
 fi
+DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)		
+case "$DISTRO" in
+	'arch' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
+	'manjaro' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;
+	*)		cp "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
+esac
+

@@ -57,7 +57,7 @@ fi
 ## DEFINE LOCAL VARIABLES
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 INPUT_SCRIPT="$DIR/synth-shell-greeter/synth-shell-greeter.sh"
-INPUT_CONFIG_DIR="$DIR/config/"
+INPUT_CONFIG_DIR="$DIR/config"
 
 
 
@@ -101,8 +101,8 @@ if [ -f "$CONFIG_FILE" ]; then
 fi
 DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)		
 case "$DISTRO" in
-	'arch' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
-	'manjaro' )	cp "$OUTPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;
-	*)		cp "$OUTPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
+	'arch' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
+	'manjaro' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;
+	*)		cp "$INPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
 esac
 

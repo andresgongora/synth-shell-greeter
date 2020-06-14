@@ -65,7 +65,7 @@ greeter()
 ## 5. Fall back to defaults.
 ##
 local target_config_file="$1"
-local user_config_file="~/.config/synth-shell/synth-shell-greeter.config"
+local user_config_file="$HOME/.config/synth-shell/synth-shell-greeter.config"
 local root_config_file="/etc/synth-shell/os/synth-shell-greeter.root.config"
 local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
 

@@ -256,6 +256,7 @@ printResourceMonitor()
 
 	## CHECK STATE
 	local percent=$('bc' <<< "$value*100/$max")
+	local percent=${percent/.*}
 	local state="nominal"
 	if   [ $percent -gt $error_percent ]; then
 		local state="error"

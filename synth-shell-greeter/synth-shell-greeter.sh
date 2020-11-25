@@ -241,7 +241,10 @@ if $print_extra_new_line_bot; then echo ""; fi
 ## This whole script is wrapped with "{}" to avoid environment pollution.
 ## It's also called in a subshell with "()" to REALLY avoid pollution.
 ## If not running interactively, don't do anything
-(greeter $1)
+## Run only in interactive session
+if [ -n "$( echo $- | grep i )" ]; then
+	(greeter $1)
+fi
 unset greeter
 
 

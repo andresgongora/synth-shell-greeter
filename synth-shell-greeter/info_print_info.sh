@@ -186,17 +186,24 @@ printInfoMonitor()
 
 	## PRINT VALUE
 	case $format in
-		"a/b")	printf "${fc_value}%${padding_value}s" $value
-				printf "${fc_deco}/"
-				printf "${fc_value}%-${padding_value}s" $max
-				printf "${fc_units} ${units}${fc_none}"
-				;;
+		"a/b")	
+			printf "${fc_value}%${padding_value}s" $value
+			printf "${fc_deco}/"
+			printf "${fc_value}%-${padding_value}s" $max
+			printf "${fc_units} ${units}${fc_none}"
+			;;
 
-		'0/0')	local percent=$('bc' <<< "$value*100/$max")
+		'0/0')		
+			if [ -z $(which 'bc' 2>/dev/null) ]; then
+				printf "${fc_error} bc not installed${fc_none}"
+			else
+				local percent=$('bc' <<< "$value*100/$max")
 				printf "${fc_value}%${padding_value}s${fc_units}%%%%${fc_none}" $percent
-				;;
+			fi
+			;;
 
-		*)		echo "Invalid format option $format"
+		*)	
+			echo "Invalid format option $format"
 	esac
 }
 

@@ -235,5 +235,3 @@ getExternalIPv4()
 	printf "$ip"
 }
 
-
-

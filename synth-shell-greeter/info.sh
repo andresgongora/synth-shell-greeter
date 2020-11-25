@@ -204,7 +204,7 @@ printInfoColorpaletteFancy()
 ##
 printInfoCPUTemp()
 {
-	if ( which sensors > /dev/null 2>&1 ); then
+	if ( which sensors > /dev/null 2>&1 && sensors > /dev/null 2>&1); then
 
 		## GET VALUES
 		local temp_line=$(sensors 2>/dev/null |\

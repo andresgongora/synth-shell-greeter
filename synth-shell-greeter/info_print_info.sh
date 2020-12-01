@@ -197,7 +197,7 @@ printInfoMonitor()
 			if [ -z $(which 'bc' 2>/dev/null) ]; then
 				printf "${fc_error} bc not installed${fc_none}"
 			else
-				LANG=C local percent=$('bc' <<< "$value*100/$max")
+				local percent=$('bc' <<< "$value*100/$max")
 				printf "${fc_value}%${padding_value}s${fc_units}%%%%${fc_none}" $percent
 			fi
 			;;

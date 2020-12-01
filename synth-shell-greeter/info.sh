@@ -212,19 +212,21 @@ printInfoCPUTemp()
 		                  head -n 1 |\
 		                  sed 's/^.*:[ \t]*//g;s/[\(\),]//g')
 		local units=$(echo $temp_line |\
-		              sed -n 's/.*\(°[[CF]]*\).*/\1/p')
+		              sed -n 's/.*\( [[CF]]*\).*/\1/p' |\
+		              sed 's/\ /°/g')
 		local current=$(echo $temp_line |\
-		                sed -n 's/^.*+\(.*\)°[[CF]]*[ \t]*h.*/\1/p')
+		                sed -n 's/^.*+\(.*\) [[CF]]*[ \t]*h.*/\1/p')
 		local high=$(echo $temp_line |\
-		             sed -n 's/^.*high = +\(.*\)°[[CF]]*[ \t]*c.*/\1/p')
+		             sed -n 's/^.*high = +\(.*\) [[CF]]*[ \t]*c.*/\1/p')
 		local max=$(echo $temp_line |\
-		            sed -n 's/^.*crit = +\(.*\)°[[CF]]*[ \t]*.*/\1/p')
+		            sed -n 's/^.*crit = +\(.*\) [[CF]]*[ \t]*.*/\1/p')
 
 
 		## DETERMINE STATE
-		if   (( $(echo "$current < $high" |bc -l) )); then 
+		## Use bc because we might be dealing with decimals
+		if   (( $(echo "$current < $high" | bc -l) )); then 
 			local state="nominal"
-		elif (( $(echo "$current < $max" |bc -l) )); then 
+		elif (( $(echo "$current < $max" | bc -l) )); then 
 			local state="critical";
 		else                             
 			local state="error";

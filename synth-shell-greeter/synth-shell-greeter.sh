@@ -48,8 +48,6 @@ include '../config/synth-shell-greeter.config.default'
 
 greeter()
 {
-
-
 ##==============================================================================
 ##	CONFIGURATION
 ##==============================================================================
@@ -220,6 +218,14 @@ printReports()
 ##==============================================================================
 ##	MAIN
 ##==============================================================================
+
+
+## CHECKS
+if [ -z $(which 'bc' 2>/dev/null) ]; then
+	printf "${fc_error}synth-shell-greeter: 'bc' not installed${fc_none}"
+	exit 1
+fi
+
 
 ## PRINT TOP SPACER
 if $clear_before_print; then clear; fi

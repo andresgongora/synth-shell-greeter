@@ -251,7 +251,7 @@ if $print_extra_new_line_bot; then echo ""; fi
 ## If not running interactively, don't do anything.
 ## Run with `LANG=C` so the code uses `.` as decimal separator.
 if [ -n "$( echo $- | grep i )" ]; then
-	(LANG=C greeter $1) 
+	(LC_ALL=C greeter $1) 
 fi
 unset greeter
 

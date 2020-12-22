@@ -1,5 +1,6 @@
 ![synth-shell-greeter](doc/synth-shell-greeter.jpg)
 
+This script is part of [synth-shell](https://github.com/andresgongora/synth-shell)
 
 **synth-shell-greeter** shows a summary of your system's current health.
 - Automatically printed in new terminal sessions (local, SSH, ...).

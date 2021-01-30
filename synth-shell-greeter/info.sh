@@ -126,19 +126,25 @@ printInfoGPU()
 ##
 printInfoSystemctl()
 {
-	local systcl_num_failed=$(systemctl --failed |\
-	                          grep "loaded units listed" |\
-	                          head -c 1)
+	if [ -z $(pidof systemd) ]; then
+		local sysctl="systemd not running"
+		local state="critical"
 
-	if   [ "$systcl_num_failed" -eq "0" ]; then
-		local sysctl="All services OK"
-		local state="nominal"
-	elif [ "$systcl_num_failed" -eq "1" ]; then
-		local sysctl="1 service failed!"
-		local state="error"
 	else
-		local sysctl="$systcl_num_failed services failed!"
-		local state="error"
+		local systcl_num_failed=$(systemctl --failed |\
+		                          grep "loaded units listed" |\
+		                          head -c 1)
+
+		if   [ "$systcl_num_failed" -eq "0" ]; then
+			local sysctl="All services OK"
+			local state="nominal"
+		elif [ "$systcl_num_failed" -eq "1" ]; then
+			local sysctl="1 service failed!"
+			local state="error"
+		else
+			local sysctl="$systcl_num_failed services failed!"
+			local state="error"
+		fi
 	fi
 
 	printInfoLine "Services" "$sysctl" "$state"

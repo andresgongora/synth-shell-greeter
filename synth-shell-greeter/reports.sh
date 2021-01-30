@@ -75,16 +75,21 @@ reportSystemctl()
 	assert_is_set ${fc_crit}
 	assert_is_set ${fc_none}
 
-	systcl_num_failed=$(systemctl --failed |\
-	                    grep "loaded units listed" |\
-	                    head -c 1)
+    ## 1. Check if systemd is running (it might not on some distros/Windows)
+    ## 2. Get number of failed daemons
+    ## 3. Report those that failed
+    if [ ! -z $(pidof systemd) ]; then
+	    systcl_num_failed=$(systemctl --failed |\
+	                        grep "loaded units listed" |\
+	                        head -c 1)
 
-	if [ "$systcl_num_failed" -ne "0" ]; then
-		local failed=$(systemctl --failed | awk '/UNIT/,/^$/')
-		printf "\n${fc_crit}SYSTEMCTL FAILED SERVICES:\n"
-		printf "${fc_info}${failed}${fc_none}\n"
+	    if [ "$systcl_num_failed" -ne "0" ]; then
+		    local failed=$(systemctl --failed | awk '/UNIT/,/^$/')
+		    printf "\n${fc_crit}SYSTEMCTL FAILED SERVICES:\n"
+		    printf "${fc_info}${failed}${fc_none}\n"
 
-	fi
+	    fi
+    fi
 }
 
 

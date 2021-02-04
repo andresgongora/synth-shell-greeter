@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# shellcheck disable=SC2155,SC2059,SC2004,SC1090,SC2154,SC2034
-
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
 ##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |

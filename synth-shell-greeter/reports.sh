@@ -31,7 +31,7 @@
 ##==============================================================================
 ##	EXTERNAL DEPENDENCIES
 ##==============================================================================
-[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd $(dirname "${BASH_SOURCE[0]}")&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
 
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
@@ -78,7 +78,7 @@ reportSystemctl()
     ## 1. Check if systemd is running (it might not on some distros/Windows)
     ## 2. Get number of failed daemons
     ## 3. Report those that failed
-    if [ ! -z $(pidof systemd) ]; then
+    if [ -n "$(pidof systemd)" ]; then
 	    systcl_num_failed=$(systemctl --failed |\
 	                        grep "loaded units listed" |\
 	                        head -c 1)
@@ -109,7 +109,7 @@ reportHogsCPU()
 
 
 	## EXIT IF NOT ENABLED
-	if [ "$cpu_crit_print"==true ]; then
+	if [ "$cpu_crit_print" == true ]; then
 		## CHECK CPU LOAD
 		local current=$(awk '{avg_1m=($1)} END {printf "%3.2f", avg_1m}' /proc/loadavg)
 		local max=$(nproc --all)
@@ -163,7 +163,7 @@ reportHogsMemory()
 
 
 	## EXIT IF NOT ENABLED
-	if [ "$ram_crit_print"==true ]; then
+	if [ "$ram_crit_print" == true ]; then
 		## CHECK RAM
 		local ram_is_crit=false
 		local mem_info=$('free' -m | head -n 2 | tail -n 1)
@@ -177,7 +177,7 @@ reportHogsMemory()
 
 		## CHECK SWAP
 		## First check if there is any swap at all by checking /proc/swaps
-		## If tehre is at least one swap partition listed, proceed
+		## If there is at least one swap partition listed, proceed
 		local swap_is_crit=false
 		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
 		if [ "$num_swap_devs" -ge 1 ]; then

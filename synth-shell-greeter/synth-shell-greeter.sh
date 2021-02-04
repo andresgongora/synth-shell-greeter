@@ -33,7 +33,7 @@
 ##==============================================================================
 ##	EXTERNAL DEPENDENCIES
 ##==============================================================================
-[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd $(dirname "${BASH_SOURCE[0]}")&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
 
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
@@ -69,7 +69,7 @@ local sys_config_file="/etc/synth-shell/synth-shell-greeter.config"
 
 if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
 elif [ -f "$user_config_file" ]; then source "$user_config_file" ;
-elif [ -f $root_config_file -a "$USER" == "root" ]; then source "$root_config_file" ;
+elif [ -f $root_config_file ] && [ "$USER" == "root" ]; then source "$root_config_file" ;
 elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
 else : # Default config already "included" ; 
 fi
@@ -152,9 +152,9 @@ printStatusInfo()
 	local status_info=""
 	for key in $print_info; do
 		if [ -z "$status_info" ]; then
-			local status_info="$(statusSwitch $key)"
+			local status_info="$(statusSwitch "$key")"
 		else
-			local status_info="${status_info}\n$(statusSwitch $key)"
+			local status_info="${status_info}\n$(statusSwitch "$key")"
 		fi
 	done
 	printf "${status_info}\n"
@@ -185,7 +185,7 @@ printHeader()
 
 
 	## PRINT ONLY WHAT FITS IN THE TERMINAL
-	if [ $(( $logo_cols + $info_cols )) -le $term_cols ]; then
+	if [ $(( $logo_cols + $info_cols )) -le "$term_cols" ]; then
 		: # everything fits
 	else
 		local logo=""
@@ -221,7 +221,7 @@ printReports()
 
 
 ## CHECKS
-if [ -z $(which 'bc' 2>/dev/null) ]; then
+if [ -z "$(which 'bc' 2>/dev/null)" ]; then
 	printf "${fc_error}synth-shell-greeter: 'bc' not installed${fc_none}"
 	exit 1
 fi
@@ -251,7 +251,7 @@ if $print_extra_new_line_bot; then echo ""; fi
 ## If not running interactively, don't do anything.
 ## Run with `LANG=C` so the code uses `.` as decimal separator.
 if [ -n "$( echo $- | grep i )" ]; then
-	(LC_ALL=C greeter $1) 
+	(LC_ALL=C greeter "$1") 
 fi
 unset greeter
 

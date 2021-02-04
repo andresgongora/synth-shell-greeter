@@ -31,7 +31,7 @@
 ##==============================================================================
 ##	EXTERNAL DEPENDENCIES
 ##==============================================================================
-[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd $(dirname "${BASH_SOURCE[0]}")&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
 
 include 'info_print_info.sh'
 include 'info_about_os.sh'
@@ -126,7 +126,7 @@ printInfoGPU()
 ##
 printInfoSystemctl()
 {
-	if [ -z $(pidof systemd) ]; then
+	if [ -z "$(pidof systemd)" ]; then
 		local sysctl="systemd not running"
 		local state="critical"
 
@@ -450,6 +450,4 @@ printMonitorCPUTemp()
 		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
 }
-
-	
 

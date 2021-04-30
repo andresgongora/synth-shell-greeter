@@ -76,7 +76,7 @@ printInfoSpacer()       { printInfoLine "" "" ; }
 
 printInfoGPU()
 {
-	# DETECT GPU(s)set	
+	# DETECT GPU(s)set
 	local gpu_ids=($(lspci 2>/dev/null | grep ' VGA ' | cut -d" " -f 1))
 
 	# FOR ALL DETECTED IDs
@@ -102,6 +102,7 @@ printInfoGPU()
 		                 s/\[AMD\/ATI\]/ATI/g;
 		                 s/Integrated Graphics Controller/HD Graphics/g;
 		                 s/Integrated Controller/IC/g;
+                         s/Matrox Electronics Systems Ltd. //g;
 		                 s/  */ /g'
 		           )
 		# If GPU name still to long, remove anything between []
@@ -177,8 +178,8 @@ printInfoColorpaletteSmall()
 ##
 printInfoColorpaletteFancy()
 {
-	## Line 1:	▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ 
-	## Line 2:	██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ 
+	## Line 1:	▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█
+	## Line 2:	██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀
 
 	local palette_top=$(printf '%s'\
 		"$(formatText "▄" -c dark-gray)$(formatText "▄" -c dark-gray -b black)$(formatText "█" -c black) "\
@@ -230,15 +231,15 @@ printInfoCPUTemp()
 
 		## DETERMINE STATE
 		## Use bc because we might be dealing with decimals
-		if   (( $(echo "$current < $high" | bc -l) )); then 
+		if   (( $(echo "$current < $high" | bc -l) )); then
 			local state="nominal"
-		elif (( $(echo "$current < $max" | bc -l) )); then 
+		elif (( $(echo "$current < $max" | bc -l) )); then
 			local state="critical";
-		else                             
+		else
 			local state="error";
 		fi
 
-		
+
 		## PRINT MESSAGE
 		local temp="$current$units"
 		printInfoLine "CPU temp" "$temp" "$state"
@@ -246,7 +247,7 @@ printInfoCPUTemp()
 		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
 
-	
+
 }
 
 
@@ -258,7 +259,7 @@ printResourceMonitor()
 	local max=$3
 	local units=$4
 	local format=$5
-	local crit_percent=$6	
+	local crit_percent=$6
 	local error_percent=${7:-99}
 
 
@@ -345,10 +346,10 @@ printMonitorSwap()
 	## Count number of lines in /proc/swaps, excluding the header (-1)
 	## This is not fool-proof, but if num_swap_devs>=1, there should be swap
 	local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))
-	
+
 	if [ "$num_swap_devs" -lt 1 ]; then
 		printInfoLine "$label" "N/A"
-	
+
 	else
 		local swap_info=$('free' "$option" | tail -n 1)
 		local current_value=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
@@ -368,7 +369,7 @@ printStorageMonitor()
 	local device=$2
 	local units=$3
 	local format=$4
-	local crit_percent=$5	
+	local crit_percent=$5
 	local error_percent=${6:-99}
 
 	case "$units" in
@@ -393,7 +394,7 @@ printMonitorHDD()
 	assert_is_set $bar_hdd_crit_percent
 
 	local format=$1
-	local label="Storage /"	
+	local label="Storage /"
 	local device="/"
 	local units=$bar_hdd_units
 	local crit_percent=$bar_hdd_crit_percent
@@ -404,14 +405,14 @@ printMonitorHDD()
 
 
 ##------------------------------------------------------------------------------
-## 
+##
 printMonitorHome()
 {
 	assert_is_set $bar_home_units
 	assert_is_set $bar_home_crit_percent
 
 	local format=$1
-	local label="Storage /home"	
+	local label="Storage /home"
 	local device=$HOME
 	local units=$bar_home_units
 	local crit_percent=$bar_home_crit_percent
@@ -442,7 +443,7 @@ printMonitorCPUTemp()
 		              sed -n 's/^.*crit = +\(.*\)°[[CF]]*[ \t]*.*/\1/p' )
 		local crit_percent=$(bc <<< "$high*100/$max")
 
-		
+
 		## PRINT MONITOR
 		printResourceMonitor $current $max $crit_percent \
 	        	     false $units "CPU temp"
@@ -450,4 +451,3 @@ printMonitorCPUTemp()
 		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
 }
-

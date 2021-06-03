@@ -92,17 +92,14 @@ getDate()
 ##
 getUptime() 
 {
-#	local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
-#		                        s/s//g;
-#		                        s/ year/y/g;
-#		                        s/ month/m/g;
-#		                        s/ week/w/g;
-#		                        s/ day/d/g;
-#		                        s/ hour, /:/g;
-#		                        s/ minute//g')
-	local uptime=$(uptime | sed 's/^[^,]*up *//g;
-	                             s/,.*$/ hours/g')
-	printf "$uptime"
+	local seconds=`sed 's/\..*$//' /proc/uptime`
+	local hours=$(( $seconds/3600 ))
+	local minutes=$(( ( $seconds % 3600) / 60 ))
+	local minutes_suffix="mins"
+	local hours_suffix="hours"
+	if [ $minutes -eq 1 ]; then minutes_suffix="min"; fi
+	if [ $hours -eq 1 ];   then hours_suffix="hour";  fi
+	printf "$hours $hours_suffix $minutes $minutes_suffix"
 }
 
 

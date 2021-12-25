@@ -48,12 +48,12 @@ if [ "$#" -eq 0 ]; then
 	OUTPUT_SCRIPT="$HOME/.config/synth-shell/synth-shell-greeter.sh"
 	OUTPUT_CONFIG_DIR="$HOME/.config/synth-shell"
 	USER_CHOICE=""
-		
+
 elif [ "$#" -eq 2 ]; then
 	OUTPUT_SCRIPT="$1"
 	OUTPUT_CONFIG_DIR="$2"
 	USER_CHOICE="y"
-	
+
 else
 	printError "Wrong number of arguments passed to setup script"
 	exit 1
@@ -130,10 +130,10 @@ CONFIG_FILE="$OUTPUT_CONFIG_DIR/synth-shell-greeter.config"
 if [ -f "$CONFIG_FILE" ]; then
 	CONFIG_FILE="${CONFIG_FILE}.new"
 fi
-DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)		
+DISTRO=$(cat /etc/os-release | grep "ID=" | sed 's/ID=//g' | head -n 1)
 case "$DISTRO" in
 	'arch' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
 	'manjaro' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;
+	'ubuntu' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.ubuntu.config" "$CONFIG_FILE" ;;
 	*)		cp "$INPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
 esac
-

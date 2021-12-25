@@ -135,5 +135,7 @@ case "$DISTRO" in
 	'arch' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.archlinux.config" "$CONFIG_FILE" ;;
 	'manjaro' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.manjaro.config" "$CONFIG_FILE" ;;
 	'ubuntu' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.ubuntu.config" "$CONFIG_FILE" ;;
+	'debian' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.debian.config" "$CONFIG_FILE" ;;
+	'raspbian' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.raspbian.config" "$CONFIG_FILE" ;;
 	*)		cp "$INPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
 esac

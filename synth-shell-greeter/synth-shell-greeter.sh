@@ -37,6 +37,7 @@
 
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
+include '../bash-tools/bash-tools/exit_if_commands_not_available.sh'
 include 'info.sh'
 include 'reports.sh'
 include '../config/synth-shell-greeter.config.default'
@@ -71,7 +72,7 @@ if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
 elif [ -f "$user_config_file" ]; then source "$user_config_file" ;
 elif [ -f $root_config_file ] && [ "$USER" == "root" ]; then source "$root_config_file" ;
 elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
-else : # Default config already "included" ; 
+else : # Default config already "included" ;
 fi
 
 
@@ -126,7 +127,7 @@ printStatusInfo()
 			PALETTE_SMALL)  printInfoColorpaletteSmall;;
 			PALETTE)        printInfoColorpaletteFancy;;
 			SPACER)         printInfoSpacer;;
-			CPULOAD) 	printInfoCPULoad;;
+			CPULOAD)        printInfoCPULoad;;
 			CPUTEMP)        printInfoCPUTemp;;
 
 		## 	USAGE MONITORS (BARS)
@@ -174,8 +175,9 @@ printStatusInfo()
 printHeader()
 {
 	## GET ELEMENTS TO PRINT
-	local logo=$(echo "$fc_logo$logo$fc_none")
-	local info=$(printStatusInfo)
+	local logo=$(echo "$fc_logo$logo$fc_none" &)
+	local info=$(printStatusInfo &)
+    wait
 
 
 	## GET ELEMENT SIZES
@@ -221,10 +223,8 @@ printReports()
 
 
 ## CHECKS
-if [ -z "$(which 'bc' 2>/dev/null)" ]; then
-	printf "${fc_error}synth-shell-greeter: 'bc' not installed${fc_none}"
-	exit 1
-fi
+exitIfCommandsNotAvailable bc
+
 
 
 ## PRINT TOP SPACER
@@ -239,7 +239,7 @@ printReports
 
 ## PRINT BOTTOM SPACER
 if $print_extra_new_line_bot; then echo ""; fi
-}
+} ## /greeter
 
 
 
@@ -251,8 +251,6 @@ if $print_extra_new_line_bot; then echo ""; fi
 ## If not running interactively, don't do anything.
 ## Run with `LANG=C` so the code uses `.` as decimal separator.
 if [ -n "$( echo $- | grep i )" ]; then
-	(LC_ALL=C greeter "$1") 
+	(LC_ALL=C greeter "$1")
 fi
 unset greeter
-
-

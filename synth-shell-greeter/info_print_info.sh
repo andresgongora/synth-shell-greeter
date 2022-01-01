@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -152,7 +152,7 @@ printInfoMonitor()
 	local max=$3
 	local units=$4
 	local format=${5:-fraction}
-	local state=${6:-nominal}	
+	local state=${6:-nominal}
 
 
 	## FORMAT OPTIONS
@@ -186,14 +186,14 @@ printInfoMonitor()
 
 	## PRINT VALUE
 	case $format in
-		"a/b")	
+		"a/b")
 			printf "${fc_value}%${padding_value}s" $value
 			printf "${fc_deco}/"
 			printf "${fc_value}%-${padding_value}s" $max
 			printf "${fc_units} ${units}${fc_none}"
 			;;
 
-		'0/0')		
+		'0/0')
 			if [ -z $(which 'bc' 2>/dev/null) ]; then
 				printf "${fc_error} bc not installed${fc_none}"
 			else
@@ -202,10 +202,7 @@ printInfoMonitor()
 			fi
 			;;
 
-		*)	
+		*)
 			echo "Invalid format option $format"
 	esac
 }
-
-	
-

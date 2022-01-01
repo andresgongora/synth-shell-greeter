@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
@@ -90,7 +90,7 @@ getDate()
 
 ##==============================================================================
 ##
-getUptime() 
+getUptime()
 {
 	local seconds=`sed 's/\..*$//' /proc/uptime`
 	local hours=$(( $seconds/3600 ))
@@ -147,11 +147,3 @@ getNameLoggedInUsers()
 
 	printf "$name_users"
 }
-
-
-
-
-
-
-
-

@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -43,7 +43,7 @@ include '../bash-tools/bash-tools/assert.sh'
 
 
 ##==============================================================================
-##	
+##
 ##==============================================================================
 
 ##------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ reportHogsMemory()
 		## First check if there is any swap at all by checking /proc/swaps
 		## If there is at least one swap partition listed, proceed
 		local swap_is_crit=false
-		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
+		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))
 		if [ "$num_swap_devs" -ge 1 ]; then
 			local swap_info=$('free' -m | tail -n 1)
 			local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
@@ -206,5 +206,3 @@ reportHogsMemory()
 		fi
 	fi
 }
-
-

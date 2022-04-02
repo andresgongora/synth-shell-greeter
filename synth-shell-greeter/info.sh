@@ -246,8 +246,6 @@ printInfoCPUTemp()
 	else
 		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi
-
-
 }
 
 

@@ -87,7 +87,33 @@ reportSystemctl()
 		    local failed=$(systemctl --failed | awk '/UNIT/,/^$/')
 		    printf "\n${fc_crit}SYSTEMCTL FAILED SERVICES:\n"
 		    printf "${fc_info}${failed}${fc_none}\n"
+	    fi
+    fi
+}
 
+
+
+##------------------------------------------------------------------------------
+##
+reportJournalctl()
+{
+	assert_is_set ${fc_highlight}
+	assert_is_set ${fc_info}
+	assert_is_set ${fc_crit}
+	assert_is_set ${fc_none}
+
+    ## 1. Check if systemd is running (it might not on some distros/Windows)
+    ## 2. Get number of error messages reported by journalctl
+    ## 3. Report those messages, if any
+    if [ -n "$(pidof systemd)" ]; then
+	    journalctl_num_error=$(journalctl --priority=3 --boot |\
+	                           grep -P -o "^\w+\s\d+\s\d{1,2}\:\d{1,2}\:\d{1,2}\s" |\
+	                           wc -l)
+
+	    if [ "$journalctl_num_error" -ne "0" ]; then
+		    printf "\n${fc_crit}JOURNALCTL ERRORS: ${fc_info}(run 'journalctl --priority=3 --boot' for complete info)${fc_none}\n"
+			journalctl --priority=3 --boot --no-pager --output=short --no-hostname --no-full -q
+			printf "${fc_none}\n"
 	    fi
     fi
 }

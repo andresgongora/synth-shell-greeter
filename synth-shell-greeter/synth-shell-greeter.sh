@@ -124,6 +124,7 @@ printStatusInfo()
 			LOCALIPV4)      printInfoLocalIPv4;;
 			EXTERNALIPV4)   printInfoExternalIPv4;;
 			SERVICES)       printInfoSystemctl;;
+			JOURNAL)        printInfoJournalctl;;
 			PALETTE_SMALL)  printInfoColorpaletteSmall;;
 			PALETTE)        printInfoColorpaletteFancy;;
 			SPACER)         printInfoSpacer;;
@@ -208,6 +209,7 @@ printReports()
 {
 	reportLastLogins
 	reportSystemctl
+	reportJournalctl
 	reportHogsCPU
 	reportHogsMemory
 }

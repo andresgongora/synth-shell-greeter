@@ -46,6 +46,7 @@ logo="\e[38;5;213m                          __  __
 ## LOCALIPV4            IPv4
 ## EXTERNALIPV4         External IPv4 (might be slow)
 ## SERVICES             Summary of failed services
+## JOURNAL				Report high priority errors in the systemd journal
 ## CPULOAD              Sys load average(eg. 0.23, 0.26, 0.27 )
 ## CPUTEMP              CPU temperature (requires lm-sensors)
 ##
@@ -80,6 +81,7 @@ print_info="
 	LOCALIPV4
 	EXTERNALIPV4
 	SERVICES
+	JOURNAL
 	CPUTEMP
 	SYSLOAD_MON%
 	MEMORY_MON

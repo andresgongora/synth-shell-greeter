@@ -155,6 +155,37 @@ printInfoSystemctl()
 
 ##------------------------------------------------------------------------------
 ##
+printInfoJournalctl()
+{
+	if [ -z "$(pidof systemd)" ]; then
+		local sysctl="systemd not running"
+		local state="critical"
+
+	else
+
+		journalctl_num_error=$(journalctl --priority=3 --boot |\
+	                           grep -P -o "^\w+\s\d+\s\d{1,2}\:\d{1,2}\:\d{1,2}\s" |\
+	                           wc -l)
+	fi
+
+	if [ "$journalctl_num_error" -eq "0" ]; then
+			local sysctl="No errors"
+			local state="nominal"
+	elif [ "$journalctl_num_error" -eq "1" ]; then
+		local sysctl="1 error!"
+		local state="error"
+	else
+		local sysctl="$journalctl_num_error errors!"
+		local state="error"
+	fi
+
+	printInfoLine "System journal" "$sysctl" "$state"
+}
+
+
+
+##------------------------------------------------------------------------------
+##
 printInfoColorpaletteSmall()
 {
 	local char="▀▀"

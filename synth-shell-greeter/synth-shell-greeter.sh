@@ -208,10 +208,22 @@ printHeader()
 printReports()
 {
 	reportLastLogins
-	reportSystemctl
-	reportJournalctl
-	reportHogsCPU
-	reportHogsMemory
+
+	if [[ "$print_info" == *"SERVICES"* ]]; then
+		reportSystemctl
+	fi
+
+	if [[ "$print_info" == *"JOURNAL"* ]]; then
+		reportJournalctl
+	fi
+
+	if [[ "$print_info" == *"SYSLOAD_MON"* ]]; then
+		reportHogsCPU
+	fi
+
+	if [[ "$print_info" == *"MEMORY_MON"* ]]; then
+		reportHogsMemory
+	fi
 }
 
 

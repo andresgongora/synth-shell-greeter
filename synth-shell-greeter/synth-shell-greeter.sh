@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2023, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -27,7 +27,6 @@
 ##	system resources, possible errors, and suspicions system activity.
 ##
 ##
-
 
 
 ##==============================================================================
@@ -76,7 +75,6 @@ else : # Default config already "included" ;
 fi
 
 
-
 ## COLOR AND TEXT FORMAT CODE
 local fc_info=$(getFormatCode $format_info)
 local fc_highlight=$(getFormatCode $format_highlight)
@@ -85,16 +83,11 @@ local fc_deco=$(getFormatCode $format_deco)
 local fc_ok=$(getFormatCode $format_ok)
 local fc_error=$(getFormatCode $format_error)
 local fc_logo=$(getFormatCode $format_logo)
+local fc_background=$(getFormatCode $format_background)
 local fc_none=$(getFormatCode -e reset)
-#fc_logo
-#fc_ok
-#fc_crit
-#fc_error
-#fc_none
+
 local fc_label="$fc_info"
 local fc_text="$fc_highlight"
-
-
 
 
 
@@ -165,8 +158,6 @@ printStatusInfo()
 
 
 
-
-
 ##==============================================================================
 ##	PRINT
 ##==============================================================================
@@ -205,6 +196,7 @@ printHeader()
 
 
 
+
 printReports()
 {
 	reportLastLogins
@@ -229,8 +221,6 @@ printReports()
 
 
 
-
-
 ##==============================================================================
 ##	MAIN
 ##==============================================================================
@@ -238,7 +228,6 @@ printReports()
 
 ## CHECKS
 exitIfCommandsNotAvailable bc
-
 
 
 ## PRINT TOP SPACER

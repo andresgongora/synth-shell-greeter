@@ -27,7 +27,6 @@
 ##
 
 
-
 ##==============================================================================
 ##	EXTERNAL DEPENDENCIES
 ##==============================================================================
@@ -39,12 +38,9 @@ include '../bash-tools/bash-tools/assert.sh'
 
 
 
-
-
 ##==============================================================================
 ##	HELPERS
 ##==============================================================================
-
 
 
 ##==============================================================================
@@ -59,6 +55,7 @@ _getStateColor()
 	assert_is_set $fc_deco
 	assert_is_set $fc_crit
 	assert_is_set $fc_error
+	assert_is_set $fc_background
 
 	local state=$1
 	local E_PARAM_ERR=98
@@ -76,13 +73,9 @@ _getStateColor()
 
 
 
-
-
-
 ##==============================================================================
 ##	FUNCTIONS
 ##==============================================================================
-
 
 
 ##==============================================================================
@@ -117,8 +110,6 @@ printInfoLine()
 	## PRINT LABEL AND VALUE
 	printf "${fc_label}%-${padding_label}s${fc_value}${value}${fc_none}\n" "$label"
 }
-
-
 
 
 
@@ -167,10 +158,10 @@ printInfoMonitor()
 	local padding_bar=$bar_padding_after
 
 
-	## COMPOSE CHARACTERS FOR BAR
+	## COMPOSE CHARACTERS FOR BAR - OLD -
 	local bracket_left=$fc_bracket_color$bar_bracket_char_left
 	local fill=$fc_fill_color$bar_fill_char
-	local background=$fc_none$bar_background_char
+	local background=$fc_background$bar_background_char
 	local bracket_right=$fc_bracket_color$bar_bracket_char_right$fc_none
 
 

@@ -113,7 +113,7 @@ format_deco="           -c light-gray          "
 format_ok="             -c blue         -e bold"
 format_error="          -c 45           -e bold -e blink"
 format_logo="           -c blue         -e bold"
-
+format_background="     -c black               "
 
 
 ##==============================================================================
@@ -144,13 +144,13 @@ ram_crit_print=true
 ram_crit_print_num=3
 
 bar_length=9                    # Number of characters that comprise a bar
-bar_num_digits=5                # Control num digits next to bar
-bar_padding_after=0		# Extra spaces after bar
+bar_num_digits=5                # Control num digits for the bar's numeric value
+bar_padding_after=0             # Extra spaces between bar and numeric value
 info_label_width=16             # Desired length of the info labels
-bar_bracket_char_left='['
-bar_bracket_char_right=']'
-bar_fill_char='|'
-bar_background_char=' '
+bar_bracket_char_left='$'       # '$' to omit and not print
+bar_bracket_char_right='$'      # '$' to omit and not print
+bar_fill_char='━'
+bar_background_char='━'
 
 
 ##==============================================================================

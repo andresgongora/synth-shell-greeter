@@ -107,7 +107,7 @@ printStatusInfo()
 			CPU)            printInfoCPU;;
 			GPU)            printInfoGPU;;
 			SHELL)          printInfoShell;;
-            SHELL_NANE)     printInfoShellName;;
+            SHELL_NAME)     printInfoShellName;;
 			DATE)           printInfoDate;;
 			UPTIME)         printInfoUptime;;
 			USER)           printInfoUser;;

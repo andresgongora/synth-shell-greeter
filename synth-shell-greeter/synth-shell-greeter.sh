@@ -90,8 +90,6 @@ local fc_label="$fc_info"
 local fc_text="$fc_highlight"
 
 
-
-
 ##==============================================================================
 ##	STATUS INFO COMPOSITION
 ##==============================================================================
@@ -109,6 +107,7 @@ printStatusInfo()
 			CPU)            printInfoCPU;;
 			GPU)            printInfoGPU;;
 			SHELL)          printInfoShell;;
+            SHELL_NANE)     printInfoShellName;;
 			DATE)           printInfoDate;;
 			UPTIME)         printInfoUptime;;
 			USER)           printInfoUser;;
@@ -156,8 +155,6 @@ printStatusInfo()
 }
 
 
-
-
 ##==============================================================================
 ##	PRINT
 ##==============================================================================
@@ -195,8 +192,6 @@ printHeader()
 }
 
 
-
-
 printReports()
 {
 	reportLastLogins
@@ -217,8 +212,6 @@ printReports()
 		reportHogsMemory
 	fi
 }
-
-
 
 
 ##==============================================================================
@@ -243,7 +236,6 @@ printReports
 ## PRINT BOTTOM SPACER
 if $print_extra_new_line_bot; then echo ""; fi
 } ## /greeter
-
 
 
 ## RUN SCRIPT

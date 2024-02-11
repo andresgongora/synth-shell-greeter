@@ -26,7 +26,6 @@ logo="\e[38;5;213m                          __  __
 /____/_/ /_/_____/_____/_____/\e[0;39m"
 
 
-
 ##==============================================================================
 ## STATUS INFO
 ##
@@ -37,7 +36,8 @@ logo="\e[38;5;213m                          __  __
 ## OS                   Linux distribution name
 ## KERNEL               Kernel version
 ## CPU                  CPU Name
-## SHELL                Shell name
+## SHELL                Shell name (including sys path)
+## SHELL_NAME           Shell name
 ## DATE                 Current date
 ## UPTIME               System uptime (time since boot)
 ## USER                 Current user and host names
@@ -75,7 +75,7 @@ print_info="
 	KERNEL
 	CPU
 	GPU
-	SHELL
+	SHELL_NAME
 	DATE
 	UPTIME
 	LOCALIPV4
@@ -88,7 +88,6 @@ print_info="
 	HDDROOT_MON
 	HDDHOME_MON
 	PALETTE"
-
 
 
 ##==============================================================================

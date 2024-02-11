@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2024, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -20,14 +20,6 @@
 ##  +-----------------------------------------------------------------------+
 
 
-##
-##	DESCRIPTION:
-##
-##
-##
-
-
-
 ##==============================================================================
 ##	EXTERNAL DEPENDENCIES
 ##==============================================================================
@@ -39,17 +31,14 @@ include 'info_about_hardware.sh'
 include 'info_about_network.sh'
 
 
-
-
-
-
 ##==============================================================================
 ##	ONE LINERS
 ##==============================================================================
 
 printInfoOS()           { printInfoLine "OS" "$(getNameOS)" ; }
 printInfoKernel()       { printInfoLine "Kernel" "$(getNameKernel)" ; }
-printInfoShell()        { printInfoLine "Shell" "$(getNameShell)" ; }
+printInfoShell()        { printInfoLine "Shell" "$(getFullShellName)" ; }
+printInfoShellName()    { printInfoLine "Shell" "$(getShellName)" ; }
 printInfoDate()         { printInfoLine "Date" "$(getDate)" ; }
 printInfoUptime()       { printInfoLine "Uptime" "$(getUptime)" ; }
 printInfoUser()         { printInfoLine "User" "$(getUserHost)" ; }
@@ -63,11 +52,6 @@ printInfoLocalIPv4()    { printInfoLine "Local IPv4" "$(getLocalIPv4)" ; }
 printInfoExternalIPv4() { printInfoLine "External IPv4" "$(getExternalIPv4)" ; }
 
 printInfoSpacer()       { printInfoLine "" "" ; }
-
-
-
-
-
 
 
 ##==============================================================================
@@ -115,10 +99,6 @@ printInfoGPU()
 }
 
 
-
-
-
-
 ##==============================================================================
 ##
 ##==============================================================================
@@ -152,7 +132,6 @@ printInfoSystemctl()
 }
 
 
-
 ##------------------------------------------------------------------------------
 ##
 printInfoJournalctl()
@@ -183,7 +162,6 @@ printInfoJournalctl()
 }
 
 
-
 ##------------------------------------------------------------------------------
 ##
 printInfoColorpaletteSmall()
@@ -202,7 +180,6 @@ printInfoColorpaletteSmall()
 
 	printInfoLine "Color palette" "$palette"
 }
-
 
 
 ##------------------------------------------------------------------------------
@@ -235,7 +212,6 @@ printInfoColorpaletteFancy()
 	printInfoLine "" "$palette_top"
 	printInfoLine "Color palette" "$palette_bot"
 }
-
 
 
 ##------------------------------------------------------------------------------
@@ -280,7 +256,8 @@ printInfoCPUTemp()
 }
 
 
-
+##------------------------------------------------------------------------------
+##
 printResourceMonitor()
 {
 	local label=$1
@@ -307,8 +284,6 @@ printResourceMonitor()
 }
 
 
-
-
 ##------------------------------------------------------------------------------
 ##
 printMonitorCPU()
@@ -324,7 +299,6 @@ printMonitorCPU()
 
 	printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" "$crit_percent"
 }
-
 
 
 ##------------------------------------------------------------------------------
@@ -351,7 +325,6 @@ printMonitorRAM()
 
 	printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" "$crit_percent"
 }
-
 
 
 ##------------------------------------------------------------------------------
@@ -432,7 +405,6 @@ printMonitorHDD()
 }
 
 
-
 ##------------------------------------------------------------------------------
 ##
 printMonitorHome()
@@ -448,7 +420,6 @@ printMonitorHome()
 
 	printStorageMonitor "$label" "$device" "$units" "$format" "$crit_percent"
 }
-
 
 
 ##------------------------------------------------------------------------------

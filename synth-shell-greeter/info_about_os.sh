@@ -30,7 +30,7 @@ getNameOS()
 	elif [ -f /usr/lib/os-release ]; then
 		local os_name=$(sed -En 's/PRETTY_NAME="(.*)"/\1/p' /usr/lib/os-release)
 	else
-		local os_name=$(uname -sr)
+		local os_name=$(uname -o)
 	fi
 
 	printf "$os_name"

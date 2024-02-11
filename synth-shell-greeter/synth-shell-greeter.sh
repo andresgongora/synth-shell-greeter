@@ -187,11 +187,16 @@ printHeader()
 	if $print_logo_right ; then
 		local right="$logo"
 		local left="$info"
+		printTwoElementsSideBySide "$left" "$right" "$print_cols_max"
+	elif $print_logo_top ; then
+		local right="$info"
+		local left="$logo"
+		printTwoElementsTop "$left" "$right" "$print_cols_max"
 	else
 		local right="$info"
 		local left="$logo"
+		printTwoElementsSideBySide "$left" "$right" "$print_cols_max"
 	fi
-	printTwoElementsSideBySide "$left" "$right" "$print_cols_max"
 }
 
 

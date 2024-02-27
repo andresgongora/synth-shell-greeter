@@ -30,7 +30,7 @@ https://aur.archlinux.org/packages/synth-shell-greeter-git/
 ### Manual setup
 
 The included [setup script](setup.sh) will guide you step by step through the
-installatioj process. Just clone this repository and run it:
+installation process. Just clone this repository and run it:
 ```
 git clone --recursive https://github.com/andresgongora/synth-shell-greeter.git
 synth-shell-greeter/setup.sh

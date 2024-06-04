@@ -36,7 +36,7 @@
 
 include '../bash-tools/bash-tools/color.sh'
 include '../bash-tools/bash-tools/print_utils.sh'
-include '../bash-tools/bash-tools/exit_if_commands_not_available.sh'
+include '../bash-tools/bash-tools/require_command.sh'
 include 'info.sh'
 include 'reports.sh'
 include '../config/synth-shell-greeter.config.default'
@@ -218,9 +218,9 @@ printReports()
 ##	MAIN
 ##==============================================================================
 
-
-## CHECKS
-exitIfCommandsNotAvailable bc
+## REQUIREMENTS
+requireCommand lspci
+requireCommand bc
 
 
 ## PRINT TOP SPACER

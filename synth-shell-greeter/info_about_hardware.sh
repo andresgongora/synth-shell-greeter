@@ -48,7 +48,16 @@ getNameCPU()
 	                    s/CPU//;
 	                    s/\s\s\+/ /;
 	                    p')
-
+	if [ -z "$cpu" ]; then
+  	local cpu=$(lscpu | grep "Model name" |\
+  	            sed -n 's/Model name\s*:\s*//;
+  	                    s/\s*@.*//;
+  	                    s/(R)//;
+  	                    s/(TM)//;
+  	                    s/CPU//;
+  	                    s/\s\s\+/ /;
+  	                    p' | sed -z 's/\n/, /g; s/,\s*$/\n/')
+  fi
 	printf "$cpu"
 }
 

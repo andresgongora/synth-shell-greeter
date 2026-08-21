@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2024, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2026, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -15,7 +15,7 @@
 ##  | GNU General Public License for more details.                          |
 ##  |                                                                       |
 ##  | You should have received a copy of the GNU General Public License     |
-##  | along with this program. If not, see <http://www.gnu.org/licenses/>.  |
+##  | along with this program. If not, see <https://www.gnu.org/licenses/>.  |
 ##  |                                                                       |
 ##  +-----------------------------------------------------------------------+
 
@@ -45,7 +45,7 @@ include '../bash-tools/bash-tools/assert.sh'
 
 ##==============================================================================
 ##	_getStateColor()
-##	Select color formating code according to state:
+##	Select color formatting code according to state:
 ##	nominal/critical/error
 ##
 _getStateColor()
@@ -124,7 +124,7 @@ printInfoLine()
 ##	3. CRIT_PERCENT: point at which to warn the user (e.g. 80 for 80%)
 ##	4. PRINT_AS_PERCENTAGE: whether to print a simple percentage after
 ##	   the utilization bar (true), or to print a fraction (false).
-##	5. UNITS: units of the resource, for display purposes only. This are
+##	5. UNITS: units of the resource, for display purposes only. These are
 ##	   not shown if PRINT_AS_PERCENTAGE=true, but must be set nonetheless.
 ##	6. LABEL: A description of the resource that will be printed in front
 ##	   of the utilization bar.

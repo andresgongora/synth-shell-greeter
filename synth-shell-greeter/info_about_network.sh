@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2023, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2026, Andres Gongora <mail@andresgongora.com>.     |
 ##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
@@ -16,7 +16,7 @@
 ##  | GNU General Public License for more details.                          |
 ##  |                                                                       |
 ##  | You should have received a copy of the GNU General Public License     |
-##  | along with this program. If not, see <http://www.gnu.org/licenses/>.  |
+##  | along with this program. If not, see <https://www.gnu.org/licenses/>.  |
 ##  |                                                                       |
 ##  +-----------------------------------------------------------------------+
 
@@ -32,29 +32,29 @@
 ##
 ##	getLocalIPv6()
 ##
-##	Looks up and returns local IPv6-address.
-##	Test for the presence of several programs in case one is missing.
+##	Looks up and returns a local IPv6 address.
+##	Tests for the presence of several programs in case one is missing.
 ##	Program search ordering is based on timed tests, fastest to slowest.
 ##
-##	!!! NOTE: Still need to figure out how to look for IP address that
-##	!!!       have a default gateway attached to related interface,
-##	!!!       otherwise this returns a list of IPv6's if there are many.
+##	!!! NOTE: Still need to figure out how to look for IP addresses that
+##	!!!       have a default gateway attached to the related interface;
+##	!!!       otherwise, this returns a list of IPv6 addresses if there are many.
 ##
 getLocalIPv6()
 {
 
-	## GREP REGGEX EXPRESSION TO RETRIEVE IP STRINGS
+	## GREP REGULAR EXPRESSION TO RETRIEVE IP STRINGS
 	##
 	## The following string is intuitive and easy to read, but only parses
 	## strings that look like IPs without checking their value. For instance,
 	## it does NOT check value ranges of IPv6
 	##
 	## grep explanation:
-	## -oP				only return matching parts of a line, and use perl regex
-	## \s*inet6\s+			any-spaces "inet6" at-least-1-space
+	## -oP				return only matching parts of a line and use a Perl regex
+	## \s*inet6\s+			any spaces "inet6" with at least 1 space
 	## (addr:?\s*)?			optionally, followed by addr or addr:
 	## \K				everything until here, omit
-	## (){1,8}			repeat block at least 1 time, up to 8
+	## (){1,8}			repeat block at least once, up to 8 times
 	## ([0-9abcdef]){0,4}:*		up to 4 chars from [] followed by :
 	##
 	#local grep_reggex='\s*inet6\s+(addr:?\s*)?\K(([0-9abcdef]){0,4}:*){1,8}'
@@ -90,11 +90,11 @@ getLocalIPv6()
 ##
 ##	getExternalIPv6()
 ##
-##	Makes an query to internet-server and returns public IPv6-address.
+##	Makes a query to an internet server and returns a public IPv6 address.
 ##	Tests for the presence of several programs in case one is missing.
 ##	Program search ordering is based on timed tests, fastest to slowest.
 ##	DNS-based queries are always faster, ~0.1 seconds.
-##	URL-queries are relatively slow, ~1 seconds.
+##	URL queries are relatively slow, ~1 second.
 ##
 getExternalIPv6()
 {
@@ -127,15 +127,15 @@ getExternalIPv6()
 ##
 ##	getLocalIPv4()
 ##
-##	Looks up and returns local IPv4-address.
-##	Tries first program found.
-##	!!! NOTE: Still needs to figure out how to look for IP address that
-##	!!!       have a default gateway attached to related interface,
-##	!!!       otherwise this returns list of IPv4's if there are many
+##	Looks up and returns a local IPv4 address.
+##	Tries the first program found.
+##	!!! NOTE: Still needs to figure out how to look for IP addresses that
+##	!!!       have a default gateway attached to the related interface;
+##	!!!       otherwise, this returns a list of IPv4 addresses if there are many.
 ##
 getLocalIPv4()
 {
-	## GREP REGEX EXPRESSION TO RETRIEVE IP STRINGS
+	## GREP REGULAR EXPRESSION TO RETRIEVE IP STRINGS
 	##
 	## The following string is intuitive and easy to read, but only parses
 	## strings that look like IPs, without checking their value. For instance,
@@ -143,17 +143,17 @@ getLocalIPv4()
 	## accepts values from [0-999] as valid.
 	##
 	## grep explanation:
-	## -oP				only return matching parts of a line, and use perl regex
-	## \s*inet\s+			any-spaces "inet6" at-least-1-space
+	## -oP				return only matching parts of a line and use a Perl regex
+	## \s*inet\s+			any spaces "inet6" with at least 1 space
 	## (addr:?\s*)?			optionally, followed by addr or addr:
 	## \K				everything until here, omit
-	## (){4}			repeat block at least 1 time, up to 8
+	## (){4}			repeat block at least once, up to 8 times
 	## ([0-9]){1,4}:*		1 to 3 integers [0-9] followed by "."
 	##
 	#local grep_reggex='^\s*inet\s+(addr:?\s*)?\K(([0-9]){1,3}\.*){4}'
 	##
 	## The following string, on the other hand, is harder to read and
-	## understand, but is MUCH safer, as it ensure that the IP
+	## understand, but is MUCH safer, as it ensures that the IP
 	## fulfills some criteria.
 	local grep_reggex='^\s*inet\s+(addr:?\s*)?\K(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
 
@@ -173,7 +173,7 @@ getLocalIPv4()
 
 
 	## FIX IP FORMAT AND RETURN
-	## Add extra space after commas for readibility
+	## Add an extra space after commas for readability
 	local ip=$(echo "$ip" | sed 's/,/, /g')
 	printf "$ip"
 }
@@ -183,11 +183,11 @@ getLocalIPv4()
 ##
 ##	getExternalIPv4()
 ##
-##	Makes a query to internet-server and returns public IPv4-address.
-##	Test for the presence of several programs in case one is missing.
+##	Makes a query to an internet server and returns a public IPv4 address.
+##	Tests for the presence of several programs in case one is missing.
 ##	Program search ordering is based on timed tests, fastest to slowest.
 ##	DNS-based queries are always faster, ~0.1 seconds.
-##	URL-queries are relatively slow, ~1 seconds.
+##	URL queries are relatively slow, ~1 second.
 ##
 getExternalIPv4()
 {

@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2023, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2026, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -15,16 +15,16 @@
 ##  | GNU General Public License for more details.                          |
 ##  |                                                                       |
 ##  | You should have received a copy of the GNU General Public License     |
-##  | along with this program. If not, see <http://www.gnu.org/licenses/>.  |
+##  | along with this program. If not, see <https://www.gnu.org/licenses/>.  |
 ##  |                                                                       |
 ##  +-----------------------------------------------------------------------+
 
 
 ##
 ##	DESCRIPTION:
-##	This script prints to terminal a summary of your system's status. This
+##	This script prints a summary of your system's status to the terminal. This
 ##	includes basic information about the OS and the CPU, as well as
-##	system resources, possible errors, and suspicions system activity.
+##	system resources, possible errors, and suspicious system activity.
 ##
 ##
 
@@ -57,9 +57,9 @@ greeter()
 ## Load default configuration file with all arguments, then try to load any of
 ## following in order, until first match, to override some or all config params.
 ## 1. Apply specific configuration file if specified as argument.
-## 2. User specific configuration if in user's home folder.
+## 2. User-specific configuration if in user's home folder.
 ## 3. If root, apply root configuration file if it exists in the system.
-## 4. System wide configuration file if it exists.
+## 4. System-wide configuration file if it exists.
 ## 5. Fall back to defaults.
 ##
 local target_config_file="$1"

@@ -1,72 +1,69 @@
 ![synth-shell-greeter](doc/synth-shell-greeter.jpg)
 
-This script is part of [synth-shell](https://github.com/andresgongora/synth-shell)
+# synth-shell-greeter
+
+[![GitHub release](https://img.shields.io/github/v/release/andresgongora/synth-shell-greeter)](https://github.com/andresgongora/synth-shell-greeter/releases)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-tip-yellow)](https://buymeacoffee.com/andresgongora)
+
+This script is part of [synth-shell](https://github.com/andresgongora/synth-shell).
 
 **synth-shell-greeter** shows a summary of your system's current health.
+
 - Automatically printed in new terminal sessions (local, SSH, ...).
-- Monitor your servers, RaspberryPis, and workstations. All system info you
-    need at a glance (e.g. external IP address, CPU temperature, etc.).
+- Monitors your servers, RaspberryPis, and workstations. All system info you
+  need at a glance (e.g. external IP address, CPU temperature, etc.).
 - Detect broken services or CPU hogs.
 - Print your own ASCII logo every time you log in.
 
-
-
 <br/><br/>
 
-
-
 <!--------------------------------------+-------------------------------------->
-#                                     Setup
+## Install
 <!--------------------------------------+-------------------------------------->
-
 
 ### Arch Linux
 
 You may install `synth-shell-greeter` from AUR:
 https://aur.archlinux.org/packages/synth-shell-greeter-git/
 
-
-
 ### Manual setup
 
 The included [setup script](setup.sh) will guide you step by step through the
 installation process. Just clone this repository and run it:
-```
+
+```bash
 git clone --recursive https://github.com/andresgongora/synth-shell-greeter.git
 synth-shell-greeter/setup.sh
 ```
 
+<!--------------------------------------+-------------------------------------->
+## Usage
+<!--------------------------------------+-------------------------------------->
+
 You can then test your script by running it from wherever you installed it.
 Usually this is to your user's `.config` folder, so you should run:
-```
+
+```bash
 ~/.config/synth-shell/synth-shell-greeter.sh
 ```
 
-If you want it to appear everytime you open a new terminal, run
-```
+If you want it to appear every time you open a new terminal, run:
+
+```bash
 echo "~/.config/synth-shell/synth-shell-greeter.sh" >> ~/.bashrc
 ```
 
+<!--------------------------------------+-------------------------------------->
+## Configuration
+<!--------------------------------------+-------------------------------------->
 
-
-### Configuration/customization
 You can configure your scripts by modifying the corresponding configuration
-files. You can find them, along example configuration files, in the following
+files. You can find them, alongside example configuration files, in the following
 folders depending on how you installed **synth-shell**:
 
-* Current-user only: `~/.config/synth-shell/`
-* System wide: `/etc/synth-shell/`
-
-
-
-
-<br/><br/>
-
-
-
-<!--------------------------------------+-------------------------------------->
-#                                    Overview
-<!--------------------------------------+-------------------------------------->
+- Current-user only: `~/.config/synth-shell/`
+- System-wide: `/etc/synth-shell/`
 
 `synth-shell-greeter` provides a summarized system report at a single glance
 every time you open up a new terminal. If it detects that any system parameter
@@ -78,19 +75,13 @@ with how awesome you are.
 Feel free to customize your status report through the many available options
 in `~/.config/synth-shell/synth-shell-greeter.config` (user-only install) or
 `/etc/synth-shell/synth-shell-greeter.config` (system-wide install), or by
-replacing their content with the examples files you can find under the same
+replacing their content with the example files you can find under the same
 directory.
 
 ![greeter configuration options](doc/status_config_preview.png)
 
-
-
-<br/><br/>
-
-
-
 <!--------------------------------------+-------------------------------------->
-#                                   Contribute
+## Contributing
 <!--------------------------------------+-------------------------------------->
 
 This project is only possible thanks to the effort and passion of many,
@@ -100,48 +91,33 @@ in [AUTHORS.md](AUTHORS.md). Thanks to all of you!
 
 If you like this project and want to contribute, you are most welcome to do so.
 
-
-
 ### Help us improve
 
-* [Report a bug](https://github.com/andresgongora/synth-shell/issues/new/choose):
+- [Report a bug](https://github.com/andresgongora/synth-shell/issues/new/choose):
   if you notice that something is not right, tell us. We'll try to fix it ASAP.
-* Suggest an idea you would like to see in the next release: send us
-  and email or open an [issue](https://github.com/andresgongora/synth-shell/issues)!
-* Become a developer: fork this repo and become an active developer!
-  Take a look at the [issues](https://github.com/andresgongora/synth-shell/issues)
-  for suggestions of where to start. Also, take a look at our
-  [coding style](coding_style.md).
-* Spread the word: telling your friends is the fastes way to get this code to
+- Suggest an idea you would like to see in the next release: send us an email or
+  open an [issue](https://github.com/andresgongora/synth-shell/issues)!
+- Become a developer: fork this repo and become an active developer! Take a look
+  at the [issues](https://github.com/andresgongora/synth-shell/issues) for
+  suggestions of where to start. Also, take a look at our
+  [coding style](doc/coding_style.md).
+- Spread the word: telling your friends is the fastest way to get this code to
   the people who might enjoy it!
 
-
-
-<br/><br/>
-
-
-
 <!--------------------------------------+-------------------------------------->
-#                                     About
+## Donations
 <!--------------------------------------+-------------------------------------->
 
-**synth-shell-greeter** is part of
-[synth-shell](https://github.com/andresgongora/synth-shell)
-
-
-
-<br/><br/>
-
-
+If you like this project and want to show your support,
+[buy me a coffee](https://buymeacoffee.com/andresgongora).
 
 <!--------------------------------------+-------------------------------------->
-#                                    License
+## License
 <!--------------------------------------+-------------------------------------->
 
-Copyright (c) 2014-2021, Andres Gongora - www.andresgongora.com
+Copyright (c) 2014-2026, Andres Gongora - www.andresgongora.com
 
-* This software is released under a GPLv3 license.
-  Read [license-GPLv3.txt](LICENSE),
-  or if not present, <http://www.gnu.org/licenses/>.
-* If you need a closed-source version of this software
-  for commercial purposes, please contact the [authors](AUTHORS.md).
+- This software is released under the [GNU GPLv3](LICENSE). If the license file is
+  unavailable, see <https://www.gnu.org/licenses/>.
+- If you need a closed-source version of this software for commercial purposes,
+  please contact the [authors](AUTHORS.md).

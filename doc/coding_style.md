@@ -22,7 +22,7 @@ unset at the end of the script, it is always possible that the script stops
 prematurely or that the developer forgets about it. Global variables can
 _contaminate_ the user's run space and lead to unexpected behaviour.
 
-Global variables are named in uppercase and using underscores.
+Global variables are named in uppercase and use underscores.
 
 ```
 MY_VAR=2
@@ -34,10 +34,10 @@ MY_SUPER_STRING="Hello world!"
 ## Local variables
 
 Declare _local_ variables using `local` rather than `declare` or other options.
-Because local variables can not be declared in the main body of the script,
+Because local variables cannot be declared in the main body of the script,
 this will enforce wrapping everything into functions, which is not a bad thing. 
 
-Local variables are named all in lower case and using underscores.
+Local variables are named in lowercase and use underscores.
 
 ```
 local my_var=2
@@ -55,7 +55,7 @@ local my_super_string="Hello world!"
 
 Each function shall do only one thing, otherwise, the function shall be
 divided into two separate functions. Following this rule is not always easy,
-but it ensures that the code is easy to read, modular and reusable.
+but it ensures that the code is easy to read, modular, and reusable.
 
 Functions are named using camel case, with the first letter in lower case. Also,
 all names must be or contain a verb that describes the action that will
@@ -132,7 +132,7 @@ If adding new lines to separate chunks of code, use either 1, 2, 3 or 6 lines.
 * 3 lines if the code is inside the same function, and the function is  
     complex. In this case, a "header-comment" must be placed above each chunk  
     explaining what it does.
-* 6 lines To separate bigger code sections, like to separate the sections that  
+* 6 lines to separate bigger code sections, such as sections that
     contain functions with similar functionality or intention.
 
 
@@ -148,12 +148,10 @@ If adding new lines to separate chunks of code, use either 1, 2, 3 or 6 lines.
 Please do not call any system binary using only its name - wrap it in `'`, 
 or use `which`. 
 
-For example, do not do call `ls` or `/usr/bin/ls`, as the
+For example, do not call `ls` or `/usr/bin/ls`, as the
 former is susceptible to be aliased by the user to a different command, and the
 latter might have a different path for a different distro. Instead `'ls'` or
-(if need be) `$(which ls)` provide more consistent behaviour.
-
-
+(if needed) `$(which ls)` provide more consistent behaviour.
 
 
 

@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2024, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2026, Andres Gongora <mail@andresgongora.com>.     |
 ##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
@@ -16,14 +16,14 @@
 ##  | GNU General Public License for more details.                          |
 ##  |                                                                       |
 ##  | You should have received a copy of the GNU General Public License     |
-##  | along with this program. If not, see <http://www.gnu.org/licenses/>.  |
+##  | along with this program. If not, see <https://www.gnu.org/licenses/>.  |
 ##  |                                                                       |
 ##  +-----------------------------------------------------------------------+
 
 
 ##
 ##	DESCRIPTION:
-##	Network related functions for synth-shell-greeter
+##	Hardware-related functions for synth-shell-greeter
 ##
 ##
 
@@ -32,7 +32,7 @@
 ##
 getNameCPU()
 {
-	## Get first instance of "model name" in /proc/cpuinfo, pipe into 'sed'
+	## Get the first instance of "model name" in /proc/cpuinfo and pipe it into 'sed'
 	## s/model name\s*:\s*//  remove "model name : " and accompanying spaces
 	## s/\s*@.*//             remove anything from "@" onwards
 	## s/(R)//                remove "(R)"

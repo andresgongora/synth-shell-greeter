@@ -2,7 +2,7 @@
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2024, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2026, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -15,7 +15,7 @@
 ##  | GNU General Public License for more details.                          |
 ##  |                                                                       |
 ##  | You should have received a copy of the GNU General Public License     |
-##  | along with this program. If not, see <http://www.gnu.org/licenses/>.  |
+##  | along with this program. If not, see <https://www.gnu.org/licenses/>.  |
 ##  |                                                                       |
 ##  +-----------------------------------------------------------------------+
 
@@ -55,7 +55,7 @@ reportLastLogins()
 
 	## DO NOTHING FOR NOW -> This is disabled intentionally for now.
 	## Printing logins should only be done under special circumstances:
-	## 1. User configurable set to always on
+	## 1. User configuration set to always on
 	## 2. If the IP/terminal is very different from usual
 	## 3. Other anomalies...
 	if false; then
@@ -75,7 +75,7 @@ reportSystemctl()
 	assert_is_set ${fc_crit}
 	assert_is_set ${fc_none}
 
-    ## 1. Check if systemd is running (it might not on some distros/Windows)
+    ## 1. Check whether systemd is running (it may not be on some distros/Windows)
     ## 2. Get number of failed daemons
     ## 3. Report those that failed
     if [ -n "$(pidof systemd)" ]; then
@@ -102,7 +102,7 @@ reportJournalctl()
 	assert_is_set ${fc_crit}
 	assert_is_set ${fc_none}
 
-    ## 1. Check if systemd is running (it might not on some distros/Windows)
+    ## 1. Check whether systemd is running (it may not be on some distros/Windows)
     ## 2. Get number of error messages reported by journalctl
     ## 3. Report those messages, if any
     if [ -n "$(pidof systemd)" ]; then

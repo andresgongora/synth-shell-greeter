@@ -80,8 +80,7 @@ reportSystemctl()
     ## 3. Report those that failed
     if [ -n "$(pidof systemd)" ]; then
 	    systcl_num_failed=$(systemctl --failed |\
-	                        grep "loaded units listed" |\
-	                        head -c 1)
+	                        awk '/loaded units listed/ {print $1; exit}')
 
 	    if [ "$systcl_num_failed" -ne "0" ]; then
 		    local failed=$(systemctl --failed | awk '/UNIT/,/^$/')

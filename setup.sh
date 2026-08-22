@@ -29,7 +29,7 @@
 ##==============================================================================
 ##	INCLUDE DEPENDENCIES
 ##==============================================================================
-[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd $(dirname "${BASH_SOURCE[0]}")&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d=$PWD&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
 include 'bash-tools/bash-tools/user_io.sh'
 include 'bash-tools/bash-tools/hook_script.sh'
 include 'bash-tools/bash-tools/assemble_script.sh'
@@ -65,7 +65,7 @@ if [ -z "$USER_CHOICE" ]; then
 	USER_CHOICE=$(promptUser "Add a hook to your .bashrc file or equivalent?\n\tRequired for autostart in new terminals" "[Y]/[n]?" "yYnN" "y")
 fi
 case "$USER_CHOICE" in
-	""|y|Y )	hookScript $OUTPUT_SCRIPT ;;
+	""|y|Y )	hookScript "$OUTPUT_SCRIPT" ;;
 	n|N )		;;
 	*)		printError "Invalid option"; exit 1
 esac
@@ -137,5 +137,6 @@ case "$DISTRO" in
 	'ubuntu' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.ubuntu.config" "$CONFIG_FILE" ;;
 	'debian' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.debian.config" "$CONFIG_FILE" ;;
 	'raspbian' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.raspbian.config" "$CONFIG_FILE" ;;
+	'pop' )	cp "$INPUT_CONFIG_DIR/os/synth-shell-greeter.popos.config" "$CONFIG_FILE" ;;
 	*)		cp "$INPUT_CONFIG_DIR/synth-shell-greeter.config.default" "$CONFIG_FILE" ;;
 esac

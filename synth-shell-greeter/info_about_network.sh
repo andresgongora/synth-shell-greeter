@@ -102,7 +102,7 @@ getExternalIPv6()
 		local result=$($(which dig) TXT -6 +short o-o.myaddr.l.google.com @ns1.google.com |\
 		               awk -F\" '{print $2}')
 
-	elif ( which nslookup > /dev/nul 2>&1 ); then
+	elif ( which nslookup > /dev/null 2>&1 ); then
 		local result=$($(which nslookup) -q=txt o-o.myaddr.l.google.com 2001:4860:4802:32::a |\
 		               awk -F \" 'BEGIN{RS="\r\n"}{print $2}END{RS="\r\n"}')
 
@@ -213,7 +213,7 @@ getExternalIPv4()
 	elif ( which wget > /dev/null 2>&1 ); then
 		local ip=$(wget -q -O - https://api.ipify.org)
 	else
-		local result="N/A"
+		local ip="N/A"
 	fi
 
 

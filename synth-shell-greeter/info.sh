@@ -113,8 +113,8 @@ printInfoSystemctl()
 
 	else
 		local systcl_num_failed=$(systemctl --failed |\
-		                          grep "loaded units listed" |\
-		                          head -c 1)
+		                          awk '/loaded units listed/ {print $1; exit}')
+		local systcl_num_failed=${systcl_num_failed:-0}
 
 		if   [ "$systcl_num_failed" -eq "0" ]; then
 			local sysctl="All services OK"
@@ -136,6 +136,7 @@ printInfoSystemctl()
 ##
 printInfoJournalctl()
 {
+	local journalctl_num_error=0
 	if [ -z "$(pidof systemd)" ]; then
 		local sysctl="systemd not running"
 		local state="critical"
@@ -145,17 +146,16 @@ printInfoJournalctl()
 		journalctl_num_error=$(journalctl --priority=3 --boot |\
 	                           grep -P -o "^\w+\s\d+\s\d{1,2}\:\d{1,2}\:\d{1,2}\s" |\
 	                           wc -l)
-	fi
-
-	if [ "$journalctl_num_error" -eq "0" ]; then
+		if [ "$journalctl_num_error" -eq "0" ]; then
 			local sysctl="No errors"
 			local state="nominal"
-	elif [ "$journalctl_num_error" -eq "1" ]; then
-		local sysctl="1 error!"
-		local state="error"
-	else
-		local sysctl="$journalctl_num_error errors!"
-		local state="error"
+		elif [ "$journalctl_num_error" -eq "1" ]; then
+			local sysctl="1 error!"
+			local state="error"
+		else
+			local sysctl="$journalctl_num_error errors!"
+			local state="error"
+		fi
 	fi
 
 	printInfoLine "System journal" "$sysctl" "$state"
@@ -222,18 +222,16 @@ printInfoCPUTemp()
 
 		## GET VALUES
 		local temp_line=$(sensors 2>/dev/null |\
-		                  grep Core |\
-		                  head -n 1 |\
-		                  sed 's/^.*:[ \t]*//g;s/[\(\),]//g')
-		local units=$(echo $temp_line |\
-		              sed -n 's/.*\( [[CF]]*\).*/\1/p' |\
-		              sed 's/\ /°/g')
-		local current=$(echo $temp_line |\
-		                sed -n 's/^.*+\(.*\) [[CF]]*[ \t]*h.*/\1/p')
-		local high=$(echo $temp_line |\
-		             sed -n 's/^.*high = +\(.*\) [[CF]]*[ \t]*c.*/\1/p')
-		local max=$(echo $temp_line |\
-		            sed -n 's/^.*crit = +\(.*\) [[CF]]*[ \t]*.*/\1/p')
+		                  grep -E '°[CF]' |\
+		                  head -n 1)
+		local units=$(sed -nE 's/.*°([CF]).*/°\1/p' <<< "$temp_line")
+		local current=$(sed -nE 's/^[^+]*\+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		local high=$(sed -nE 's/.*high = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		local max=$(sed -nE 's/.*crit = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		if [ -z "$current" ] || [ -z "$high" ] || [ -z "$max" ]; then
+			printInfoLine "CPU temp" "unavailable"
+			return
+		fi
 
 
 		## DETERMINE STATE
@@ -280,7 +278,7 @@ printResourceMonitor()
 	fi
 
 
-	printInfoMonitor "$label" "$current_value" "$max" "$units" "$format" "$state"
+	printInfoMonitor "$label" "$value" "$max" "$units" "$format" "$state"
 }
 
 
@@ -430,23 +428,21 @@ printMonitorCPUTemp()
 
 		## GET VALUES
 		local temp_line=$(sensors |\
-		                  grep Core |\
-		                  head -n 1 |\
-		                  sed 's/^.*:[ \t]*//g;s/[\(\),]//g')
-		local units=$(echo $temp_line |\
-		              sed -n 's/.*\(°[[CF]]*\).*/\1/p' )
-		local current=$(echo $temp_line |\
-		                sed -n 's/^.*+\(.*\)°[[CF]]*[ \t]*h.*/\1/p' )
-		local high=$(echo $temp_line |\
-		            sed -n 's/^.*high = +\(.*\)°[[CF]]*[ \t]*c.*/\1/p' )
-		local max=$(echo $temp_line |\
-		              sed -n 's/^.*crit = +\(.*\)°[[CF]]*[ \t]*.*/\1/p' )
+		                  grep -E '°[CF]' |\
+		                  head -n 1)
+		local units=$(sed -nE 's/.*°([CF]).*/°\1/p' <<< "$temp_line")
+		local current=$(sed -nE 's/^[^+]*\+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		local high=$(sed -nE 's/.*high = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		local max=$(sed -nE 's/.*crit = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		if [ -z "$current" ] || [ -z "$high" ] || [ -z "$max" ]; then
+			printInfoLine "CPU temp" "unavailable"
+			return
+		fi
 		local crit_percent=$(bc <<< "$high*100/$max")
 
 
 		## PRINT MONITOR
-		printResourceMonitor $current $max $crit_percent \
-	        	     false $units "CPU temp"
+		printResourceMonitor "CPU temp" "$current" "$max" "$units" "a/b" "$crit_percent"
 	else
 		printInfoLine "CPU temp" "lm-sensors not installed"
 	fi

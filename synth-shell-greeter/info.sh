@@ -223,8 +223,31 @@ getCPUTempLine()
 	## sensors also lists NIC and chipset readings; only accept known CPU
 	## labels. The degree sign is optional for the reason explained in
 	## _cpuTempFields(): under LC_ALL=C lm-sensors does not print it.
-	grep -E '^[[:space:]]*(Package id [0-9]+|Tdie|Tctl|Core 0):.*\+[0-9.]+( |°)?[CF]' \
-		<<< "$sensor_output" | head -n 1 || true
+	local line
+	line=$(grep -E '^[[:space:]]*(Package id [0-9]+|Tdie|Tctl|Core 0):.*\+[0-9.]+( |°)?[CF]' \
+		<<< "$sensor_output" | head -n 1 || true)
+	if [ -n "$line" ]; then
+		printf '%s\n' "$line"
+		return 0
+	fi
+
+	## No known label. Rather than give up, take the first reading inside a
+	## block that belongs to a CPU chip: `sensors` groups its output by chip,
+	## and a chip header is the only line at column 0 without a colon. This
+	## covers CPUs that report under a plain "temp1", such as a Raspberry Pi
+	## (cpu_thermal) or pre-Zen AMD (k10temp), without ever accepting a NIC
+	## or a disk.
+	##
+	## ⚠ The guard on leading whitespace matters: an NVMe block puts
+	## "(crit = ...)" on its own continuation line, which has no colon
+	## either and would otherwise look like a chip header.
+	awk '
+		/^[^[:space:]]/ && !/:/ && NF {
+			cpu = ($0 ~ /^(coretemp|k10temp|k8temp|zenpower|cpu_thermal|via_cputemp|soc_thermal)-/)
+			next
+		}
+		cpu && /\+[0-9.]+( |°)?[CF]/ { print; exit }
+	' <<< "$sensor_output"
 }
 
 

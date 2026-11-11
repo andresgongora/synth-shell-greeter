@@ -56,11 +56,11 @@ logo="\e[38;5;213m                          __  __
 ## SWAP_MON             Occupied SWAP
 ## HDDROOT_MON          / partition occupied
 ## HDDHOME_MON          /home/user occupied
-## HDD_MON:<path>       Any other mountpoint occupied, e.g. HDD_MON:/srv/data
-##                      Named after the last component of the path ("data").
-##                      Add a label after a second colon to override it, e.g.
-##                      HDD_MON:/srv/data:Project_files
-##                      ("_" is printed as a space: print_info is split on
+## HDD_MON:<path>       Monitor custom mount point <path>.
+##                      `HDD_MON:<path>:<label>`: optional label to displayed,
+##                      where `_` is printed as space (`_` thus not available).
+##                      e.g., `HDD_MON:/srv/data:Project_files` shows usage for
+##                      dev on `/srv/data` and displays as `Project files`.
 ##                      whitespace, so a label cannot contain one)
 ## CPUTEMP_MON          CPU temperature (requires lm-sensors)
 ## SYSLOAD_MON%         Current CPU load in %
@@ -68,7 +68,7 @@ logo="\e[38;5;213m                          __  __
 ## SWAP_MON%            Occupied SWAP in %
 ## HDDROOT_MON%         / partition occupied in %
 ## HDDHOME_MON%         /home/user occupied in %
-## HDD_MON%:<path>      Any other mountpoint occupied in %
+## HDD_MON%:<path>      Same monitor in %; also accepts :<label>.
 ##
 ##                      ## MISC
 ## SPACER               Print decorative spacer (empty line)

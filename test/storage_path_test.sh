@@ -95,6 +95,21 @@ assertEqual 'Data|40|100|GB|0/0|85' "$MONITOR_RESULT"
 ##==================================================================================================
 
 reset
+printMonitorPath '' 'a/b'
+assertEqual 'HDD_MON|config error: missing path|' "$INFO_RESULT"
+assertEqual '' "$MONITOR_RESULT"
+
+reset
+printMonitorPath ':Backup_disk' 'a/b'
+assertEqual 'HDD_MON|config error: missing path|' "$INFO_RESULT"
+assertEqual '' "$MONITOR_RESULT"
+
+reset
+printMonitorPath '' '0/0'
+assertEqual 'HDD_MON|config error: missing path|' "$INFO_RESULT"
+assertEqual '' "$MONITOR_RESULT"
+
+reset
 printMonitorPath "$test_root/absent" 'a/b'
 assertEqual 'absent|not mounted|' "$INFO_RESULT"
 assertEqual '' "$MONITOR_RESULT"

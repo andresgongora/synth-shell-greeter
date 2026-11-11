@@ -138,6 +138,7 @@ printStatusInfo()
 			CPUTEMP_MON)    printMonitorCPUTemp;;
 
 		##	NAME                    FUNCTION
+			HDD_MON|HDD_MON%) printMonitorPath '' 'a/b';;
 			HDD_MON:*)      printMonitorPath "${1#HDD_MON:}"  'a/b';;
 			HDD_MON%:*)     printMonitorPath "${1#HDD_MON%:}" '0/0';;
 

@@ -137,6 +137,10 @@ printStatusInfo()
 			HDDHOME_MON%)   printMonitorHome       '0/0';;
 			CPUTEMP_MON)    printMonitorCPUTemp;;
 
+		##	NAME                    FUNCTION
+			HDD_MON:*)      printMonitorPath "${1#HDD_MON:}"  'a/b';;
+			HDD_MON%:*)     printMonitorPath "${1#HDD_MON%:}" '0/0';;
+
 			*)              printInfoLine "Unknown" "Check your config";;
 		esac
 	}

@@ -437,6 +437,68 @@ printMonitorHome()
 
 ##------------------------------------------------------------------------------
 ##
+##	Label for a storage monitor configured as "<path>" or "<path>:<label>".
+##	Without a label, the last component of the path is used: for a ZFS
+##	dataset or a mounted volume that is the name it is known by, and it fits
+##	the label column, which "Storage /pool/sub/volume" would not.
+##
+_storageMonitorLabel()
+{
+	local spec="$1"
+	local device="${spec%%:*}"
+	local label="${spec#*:}"
+
+	if [ "$label" = "$spec" ]; then
+		## Derived from the path, and taken as it is: dataset names
+		## routinely contain underscores, and turning those into spaces
+		## would rename the thing on screen.
+		local trimmed="${device%/}"
+		local label="${trimmed##*/}"
+		[ -z "$label" ] && label="$device"
+	else
+		## From the config, where print_info is split on whitespace and so
+		## a label cannot carry a space: "_" stands in for one.
+		local label="${label//_/ }"
+	fi
+
+	## The assembled pane is handed to printf as its format string (see
+	## printReports), so a literal "%" has to be doubled to survive it. Same
+	## reason printInfoMonitor writes "%%%%" for the percent sign.
+	printf '%s' "${label//%/%%}"
+}
+
+
+##------------------------------------------------------------------------------
+##
+##	Storage monitor for any mountpoint, configured as
+##	  HDD_MON:<path>            -> named after the last path component
+##	  HDD_MON:<path>:<label>    -> named by the label
+##
+printMonitorPath()
+{
+	assert_is_set $bar_hdd_units
+	assert_is_set $bar_hdd_crit_percent
+
+	local spec="$1"
+	local format="$2"
+	local device="${spec%%:*}"
+	local label=$(_storageMonitorLabel "$spec")
+
+	## A path from the config may simply not be there: a removable disk, an
+	## unmounted NFS share, or a typo. Saying so beats letting `df` write its
+	## error straight into the login greeting.
+	if [ ! -d "$device" ]; then
+		printInfoLine "$label" "not mounted"
+		return
+	fi
+
+	printStorageMonitor "$label" "$device" "$bar_hdd_units" "$format" \
+	                    "$bar_hdd_crit_percent"
+}
+
+
+##------------------------------------------------------------------------------
+##
 printMonitorCPUTemp()
 {
 	if command -v sensors > /dev/null 2>&1; then

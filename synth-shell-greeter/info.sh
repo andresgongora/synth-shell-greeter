@@ -241,12 +241,19 @@ getCPUTempLine()
 	## ⚠ The guard on leading whitespace matters: an NVMe block puts
 	## "(crit = ...)" on its own continuation line, which has no colon
 	## either and would otherwise look like a chip header.
+	##
+	## ⚠ The reading has to come RIGHT AFTER the label, with only whitespace
+	## after the colon. A line whose current value is "N/A" can still carry
+	## numeric thresholds -- "temp1: N/A (high = +70.0 C, crit = +100.0 C)"
+	## -- and matching a temperature anywhere on the line would report the
+	## high threshold as the CPU temperature. A false reading is worse than
+	## "unavailable".
 	awk '
 		/^[^[:space:]]/ && !/:/ && NF {
 			cpu = ($0 ~ /^(coretemp|k10temp|k8temp|zenpower|cpu_thermal|via_cputemp|soc_thermal)-/)
 			next
 		}
-		cpu && /\+[0-9.]+( |°)?[CF]/ { print; exit }
+		cpu && /^[^:]+:[[:space:]]*\+[0-9.]+( |°)?[CF]/ { print; exit }
 	' <<< "$sensor_output"
 }
 

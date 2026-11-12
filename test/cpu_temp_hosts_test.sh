@@ -211,6 +211,22 @@ Adapter: ISA adapter
 Package id 0:  +38.0°C  (high = +84.0°C, crit = +100.0°C)
 EOF
 
+## Constructed by the maintainer in the review of this pull request, not
+## captured from a machine: the current reading is N/A and the only numbers
+## on the line are thresholds. The fallback must not read the high threshold
+## as the temperature -- a false reading is worse than "unavailable". Both
+## the info line and the monitor bar are checked, because both parse it.
+host 'k10temp, current N/A' 'CPU temp|unavailable|' <<'EOF'
+k10temp-pci-00c3
+Adapter: PCI adapter
+temp1: N/A (high = +70.0 C, crit = +100.0 C)
+EOF
+monitor 'k10temp, current N/A' 'CPU temp|unavailable|' <<'EOF'
+k10temp-pci-00c3
+Adapter: PCI adapter
+temp1: N/A (high = +70.0 C, crit = +100.0 C)
+EOF
+
 ##==================================================================================================
 ##	THE MONITOR BAR UNDER THE C LOCALE
 ##

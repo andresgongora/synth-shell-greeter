@@ -51,6 +51,23 @@ host() {
 		die "$name: expected '$expected', got '$INFO_RESULT'"
 }
 
+##	monitor <name> <expected printMonitorCPUTemp result>, with the sample on
+##	stdin. The bar goes through printResourceMonitor (current, max, units,
+##	crit percentage); "unavailable" goes through printInfoLine instead, so
+##	whichever of the two was called is what gets compared.
+monitor() {
+	local name="$1"
+	local expected="$2"
+
+	SENSORS_OUTPUT="$(cat)"
+	INFO_RESULT=
+	MONITOR_RESULT=
+	printMonitorCPUTemp
+	local got="${MONITOR_RESULT:-$INFO_RESULT}"
+	[[ "$got" == "$expected" ]] || \
+		die "$name (monitor): expected '$expected', got '$got'"
+}
+
 ##==================================================================================================
 ##	REAL MACHINES
 ##==================================================================================================
@@ -192,6 +209,42 @@ Composite:    +41.9°C  (low  = -273.1°C, high = +84.8°C)
 coretemp-isa-0000
 Adapter: ISA adapter
 Package id 0:  +38.0°C  (high = +84.0°C, crit = +100.0°C)
+EOF
+
+##==================================================================================================
+##	THE MONITOR BAR UNDER THE C LOCALE
+##
+##	printMonitorCPUTemp() needs the current value AND both thresholds, so it
+##	is the stricter of the two consumers. Captured verbatim under LC_ALL=C,
+##	i.e. with no degree sign, as the greeter sees them. The stubbed bc
+##	always answers 1, so the last field only proves the bar was built.
+##==================================================================================================
+
+## Lenovo ThinkSystem ST550, Xeon Gold 5218: chipset and NIC come first.
+monitor 'ST550, C locale' 'CPU temp|42.0|98.0|°C|a/b|1' <<'EOF'
+power_meter-acpi-0
+Adapter: ACPI interface
+power1:      113.00 W  (interval =   1.00 s)
+
+pch_lewisburg-virtual-0
+Adapter: Virtual device
+temp1:        +40.0 C  
+
+be2net-pci-0800
+Adapter: PCI adapter
+temp1:        +51.0 C  
+
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +42.0 C  (high = +88.0 C, crit = +98.0 C)
+EOF
+
+## MSI MS-7D46 workstation, Core i7-12700: a different crit, so the maximum
+## is read from the line rather than assumed.
+monitor 'Core i7-12700, C locale' 'CPU temp|37.0|100.0|°C|a/b|1' <<'EOF'
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +37.0 C  (high = +80.0 C, crit = +100.0 C)
 EOF
 
 printf 'PASS: CPU temperature on real hosts\n'

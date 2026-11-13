@@ -223,8 +223,10 @@ getCPUTempLine()
 	## sensors also lists NIC and chipset readings; only accept known CPU
 	## labels. The degree sign is optional for the reason explained in
 	## _cpuTempFields(): under LC_ALL=C lm-sensors does not print it.
+	## The reading has to come right after the colon, for the same reason as
+	## in the fallback below: an "N/A" line can still carry numeric thresholds.
 	local line
-	line=$(grep -E '^[[:space:]]*(Package id [0-9]+|Tdie|Tctl|Core 0):.*\+[0-9.]+( |°)?[CF]' \
+	line=$(grep -E '^[[:space:]]*(Package id [0-9]+|Tdie|Tctl|Core 0):[[:space:]]*\+[0-9.]+( |°)?[CF]' \
 		<<< "$sensor_output" | head -n 1 || true)
 	if [ -n "$line" ]; then
 		printf '%s\n' "$line"

@@ -227,6 +227,31 @@ Adapter: PCI adapter
 temp1: N/A (high = +70.0 C, crit = +100.0 C)
 EOF
 
+## Constructed by the maintainer in the second review, not captured: the same
+## N/A shape under a known label. The label selector returns before the
+## fallback runs, so it needs the same guard. The valid line next to it is
+## the control: a labelled reading must still be found.
+host 'Package id, valid' 'CPU temp|42.0°C|nominal' <<'EOF'
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0: +42.0 C (high = +88.0 C, crit = +98.0 C)
+EOF
+monitor 'Package id, valid' 'CPU temp|42.0|98.0|°C|a/b|1' <<'EOF'
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0: +42.0 C (high = +88.0 C, crit = +98.0 C)
+EOF
+host 'Package id, current N/A' 'CPU temp|unavailable|' <<'EOF'
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0: N/A (high = +80.0 C, crit = +100.0 C)
+EOF
+monitor 'Package id, current N/A' 'CPU temp|unavailable|' <<'EOF'
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0: N/A (high = +80.0 C, crit = +100.0 C)
+EOF
+
 ##==================================================================================================
 ##	THE MONITOR BAR UNDER THE C LOCALE
 ##

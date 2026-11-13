@@ -220,8 +220,78 @@ getCPUTempLine()
 {
 	local sensor_output
 	sensor_output=$(sensors 2>/dev/null) || return 1
-	## sensors also lists NIC and chipset readings; only accept known CPU labels.
-	grep -E '^[[:space:]]*(Package id [0-9]+|Tdie|Tctl|Core 0):.*°[CF]' <<< "$sensor_output" | head -n 1 || true
+	## sensors also lists NIC and chipset readings; only accept known CPU
+	## labels. The degree sign is optional for the reason explained in
+	## _cpuTempFields(): under LC_ALL=C lm-sensors does not print it.
+	## The reading has to come right after the colon, for the same reason as
+	## in the fallback below: an "N/A" line can still carry numeric thresholds.
+	local line
+	line=$(grep -E '^[[:space:]]*(Package id [0-9]+|Tdie|Tctl|Core 0):[[:space:]]*\+[0-9.]+( |°)?[CF]' \
+		<<< "$sensor_output" | head -n 1 || true)
+	if [ -n "$line" ]; then
+		printf '%s\n' "$line"
+		return 0
+	fi
+
+	## No known label. Rather than give up, take the first reading inside a
+	## block that belongs to a CPU chip: `sensors` groups its output by chip,
+	## and a chip header is the only line at column 0 without a colon. This
+	## covers CPUs that report under a plain "temp1", such as a Raspberry Pi
+	## (cpu_thermal) or pre-Zen AMD (k10temp), without ever accepting a NIC
+	## or a disk.
+	##
+	## ⚠ The guard on leading whitespace matters: an NVMe block puts
+	## "(crit = ...)" on its own continuation line, which has no colon
+	## either and would otherwise look like a chip header.
+	##
+	## ⚠ The reading has to come RIGHT AFTER the label, with only whitespace
+	## after the colon. A line whose current value is "N/A" can still carry
+	## numeric thresholds -- "temp1: N/A (high = +70.0 C, crit = +100.0 C)"
+	## -- and matching a temperature anywhere on the line would report the
+	## high threshold as the CPU temperature. A false reading is worse than
+	## "unavailable".
+	awk '
+		/^[^[:space:]]/ && !/:/ && NF {
+			cpu = ($0 ~ /^(coretemp|k10temp|k8temp|zenpower|cpu_thermal|via_cputemp|soc_thermal)-/)
+			next
+		}
+		cpu && /^[^:]+:[[:space:]]*\+[0-9.]+( |°)?[CF]/ { print; exit }
+	' <<< "$sensor_output"
+}
+
+
+##------------------------------------------------------------------------------
+##
+##	Pulls the reading out of one `sensors` line: current value, high
+##	threshold, critical threshold and unit, separated by "|" and in that
+##	order. Fields the line does not carry come back empty.
+##
+##	⚠ "|" and not a tab, because a tab is an IFS whitespace character: runs
+##	of them collapse, so a line with no thresholds would hand the unit back
+##	as the "high" field.
+##
+##	⚠ The separator between number and unit has to be optional, because
+##	lm-sensors writes "+69.0°C" under a UTF-8 locale but "+69.0 C" under the
+##	C locale -- and the greeter runs itself with LC_ALL=C, so the C form is
+##	the one that actually reaches this code.
+##
+##	⚠ It is written as the alternation "( |°)?" and not as " ?°?", which
+##	looks equivalent but is not: under LC_ALL=C the degree sign is two
+##	bytes, so "°?" makes only its second byte optional and the pattern then
+##	demands the first one. That form silently matches nothing on a C-locale
+##	line, which is the only kind this function sees.
+##
+_cpuTempFields()
+{
+	local line="$1"
+	local sep='( |°)?'
+
+	local current=$(sed -nE "s/^[^+]*\\+([0-9]+([.][0-9]+)?)${sep}[CF].*/\\1/p" <<< "$line")
+	local high=$(sed -nE "s/.*high = \\+([0-9]+([.][0-9]+)?)${sep}[CF].*/\\1/p" <<< "$line")
+	local max=$(sed -nE "s/.*crit = \\+([0-9]+([.][0-9]+)?)${sep}[CF].*/\\1/p" <<< "$line")
+	local units=$(sed -nE "s/^[^+]*\\+[0-9]+([.][0-9]+)?${sep}([CF]).*/\\3/p" <<< "$line")
+
+	printf '%s|%s|%s|%s' "$current" "$high" "$max" "${units:+°$units}"
 }
 
 
@@ -237,10 +307,9 @@ printInfoCPUTemp()
 			printInfoLine "CPU temp" "lm-sensors not installed"
 			return
 		fi
-		local units=$(sed -nE 's/.*°([CF]).*/°\1/p' <<< "$temp_line")
-		local current=$(sed -nE 's/^[^+]*\+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
-		local high=$(sed -nE 's/.*high = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
-		local max=$(sed -nE 's/.*crit = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		local current high max units
+		IFS='|' read -r current high max units \
+			<<< "$(_cpuTempFields "$temp_line")"
 		if [ -z "$current" ]; then
 			printInfoLine "CPU temp" "unavailable"
 			return
@@ -501,10 +570,9 @@ printMonitorCPUTemp()
 			printInfoLine "CPU temp" "unavailable"
 			return
 		fi
-		local units=$(sed -nE 's/.*°([CF]).*/°\1/p' <<< "$temp_line")
-		local current=$(sed -nE 's/^[^+]*\+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
-		local high=$(sed -nE 's/.*high = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
-		local max=$(sed -nE 's/.*crit = \+([0-9]+([.][0-9]+)?)°[CF].*/\1/p' <<< "$temp_line")
+		local current high max units
+		IFS='|' read -r current high max units \
+			<<< "$(_cpuTempFields "$temp_line")"
 		if [ -z "$current" ] || [ -z "$high" ] || [ -z "$max" ]; then
 			printInfoLine "CPU temp" "unavailable"
 			return

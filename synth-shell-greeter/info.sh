@@ -560,6 +560,58 @@ printMonitorPath()
 
 ##------------------------------------------------------------------------------
 ##
+##	ZPOOL_MON:<pool> shows the space used in a ZFS pool as `zfs list` reports
+##	it: everything in the pool, datasets and zvols alike, against the space
+##	the pool can still hand out. df cannot give this figure: every dataset is
+##	its own filesystem, so the pool's mountpoint only accounts for the few
+##	files stored directly in it, and a zvol has no mountpoint at all.
+##	ZPOOL_MON:<pool>:<label> overrides the label, as for HDD_MON.
+##
+printMonitorZpool()
+{
+	assert_is_set $bar_hdd_units
+	assert_is_set $bar_hdd_crit_percent
+
+	local spec="$1"
+	local format="$2"
+	local pool="${spec%%:*}"
+	if [ -z "$pool" ]; then
+		printInfoLine "ZPOOL_MON" "config error: missing pool"
+		return
+	fi
+	local label=$(_storageMonitorLabel "$spec")
+
+	if ! command -v zfs > /dev/null 2>&1; then
+		printInfoLine "$label" "zfs not available"
+		return
+	fi
+
+	## -H: tab-separated, no header. -p: exact bytes, no rounding or suffix.
+	local used avail
+	read -r used avail <<< "$(zfs list -H -p -o used,avail "$pool" 2> /dev/null)"
+	if ! [[ "$used" =~ ^[0-9]+$ && "$avail" =~ ^[0-9]+$ ]]; then
+		printInfoLine "$label" "pool not found"
+		return
+	fi
+
+	case "$bar_hdd_units" in
+		"MB")		local units="MB"; local divisor=$((1024 ** 2)) ;;
+		"TB")		local units="TB"; local divisor=$((1024 ** 4)) ;;
+		"PB")		local units="PB"; local divisor=$((1024 ** 5)) ;;
+		*)		local units="GB"; local divisor=$((1024 ** 3)) ;;
+	esac
+
+	## Rounded up, as `df -B1G` rounds for the other storage monitors, so the
+	## same amount of data reads the same in both.
+	local current_value=$(( (used + divisor - 1) / divisor ))
+	local max=$(( (used + avail + divisor - 1) / divisor ))
+	printResourceMonitor "$label" "$current_value" "$max" "$units" "$format" \
+	                     "$bar_hdd_crit_percent"
+}
+
+
+##------------------------------------------------------------------------------
+##
 printMonitorCPUTemp()
 {
 	if command -v sensors > /dev/null 2>&1; then

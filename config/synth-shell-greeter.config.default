@@ -62,6 +62,10 @@ logo="\e[38;5;213m                          __  __
 ##                      e.g., `HDD_MON:/srv/data:Project_files` shows usage for
 ##                      dev on `/srv/data` and displays as `Project files`.
 ##                      whitespace, so a label cannot contain one)
+## ZPOOL_MON:<pool>     Space used in ZFS pool <pool>, as `zfs list` reports
+##                      it: datasets and zvols alike, against the space the
+##                      pool can still hand out. `ZPOOL_MON:<pool>:<label>`
+##                      sets a label, as for HDD_MON.
 ## CPUTEMP_MON          CPU temperature (requires lm-sensors)
 ## SYSLOAD_MON%         Current CPU load in %
 ## MEMORY_MON%          Occupied memory in %
@@ -69,6 +73,7 @@ logo="\e[38;5;213m                          __  __
 ## HDDROOT_MON%         / partition occupied in %
 ## HDDHOME_MON%         /home/user occupied in %
 ## HDD_MON%:<path>      Same monitor in %; also accepts :<label>.
+## ZPOOL_MON%:<pool>    Same monitor in %; also accepts :<label>.
 ##
 ##                      ## MISC
 ## SPACER               Print decorative spacer (empty line)

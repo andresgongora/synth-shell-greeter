@@ -69,6 +69,7 @@ printInfoGPU()
 		local gpu=$(lspci -v -s "$id" 2>/dev/null |\
 		            head -n 1 |\
 		            sed 's/^.*: //g;s/(.*$//g;
+		                 s/ASPEED Technology, Inc. //g;
 		                 s/Generation Core Processor Family Integrated Graphics Controller /gen IGC/g;
 		                 s/Corporation//g;
 		                 s/Core Processor//g;
